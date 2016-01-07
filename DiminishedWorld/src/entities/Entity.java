@@ -1,3 +1,4 @@
+//Stevie working on scales
 package entities;
 
 import org.lwjgl.util.vector.Vector3f;
@@ -12,6 +13,7 @@ public class Entity {
 	private float rotX, rotY, rotZ;
 	private float scale;
 	private boolean isHovered,prevHovered,usingStored = false;
+	private double scalePercentage;
 	
 	private int textureIndex = 0;
 	
@@ -34,6 +36,7 @@ public class Entity {
 		this.rotY = rotY;
 		this.rotZ = rotZ;
 		this.scale = scale;
+		scalePercentage = 1;
 	}
 	
 	public float getTextureXOffset(){
