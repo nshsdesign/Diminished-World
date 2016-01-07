@@ -13,7 +13,7 @@ public class Entity {
 	private float rotX, rotY, rotZ;
 	private float scale;
 	private boolean isHovered,prevHovered,usingStored = false;
-	private double scalePercentage;
+	private float scalePercentage; //ST
 	
 	private int textureIndex = 0;
 	
@@ -25,6 +25,7 @@ public class Entity {
 		this.rotY = rotY;
 		this.rotZ = rotZ;
 		this.scale = scale;
+		scalePercentage = 1; // ST
 	}
 	
 	public Entity(TexturedModel model, int index, Vector3f position, float rotX,
@@ -36,7 +37,7 @@ public class Entity {
 		this.rotY = rotY;
 		this.rotZ = rotZ;
 		this.scale = scale;
-		scalePercentage = 1;
+		scalePercentage = 1; // ST
 	}
 	
 	public float getTextureXOffset(){
@@ -104,9 +105,13 @@ public class Entity {
 	public float getScale() {
 		return scale;
 	}
+	
+	public void setScalePercentage(float newScalePercentage) {
+		this.scalePercentage = newScalePercentage;
+	}
 
 	public void setScale(float scale) {
-		this.scale = scale;
+		this.scale = scale*scalePercentage; //ST
 	}
 
 	public void update() {
