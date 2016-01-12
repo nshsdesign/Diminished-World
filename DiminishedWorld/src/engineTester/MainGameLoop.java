@@ -1,6 +1,7 @@
 package engineTester;
 
 import java.io.File;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,12 +38,56 @@ import water.WaterRenderer;
 import water.WaterShader;
 import water.WaterTile;
 
+import javax.swing.JFrame;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.JButton;
+import javax.swing.AbstractButton;
+
+import menu.*;
+
+
 public class MainGameLoop {
 	
 	public static void main(String[] args) {
+
+		
+		//Frame Below
+		JFrame menuFrame = new JFrame("Menu");
+	    menuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    menuFrame.setSize(1280,720);
+	    menuFrame.setLocation(330,178);
+	    menuFrame.setVisible(true);
+	    menuPanel menuPanel = new menuPanel();
+	    menuPanel.setLayout(null);
+	    menuFrame.add(menuPanel);
+	    JButton playButton = new JButton("Play");
+	    playButton.setVerticalTextPosition(AbstractButton.CENTER);
+	    playButton.setHorizontalTextPosition(AbstractButton.LEADING);
+	    playButton.setMnemonic(KeyEvent.VK_D);
+	    playButton.setActionCommand("disable");
+	    buttonActionListener playListener = new buttonActionListener();
+	    playButton.addActionListener(playListener);
+	    playButton.setBounds(450 ,100, 300, 100);
+	    menuPanel.add(playButton);
+	    menuFrame.validate();
+	    boolean onMenu = true;
+	    
+	    while(onMenu == true){
+	    	if(playListener.accButtonInfo() == true){
+	    		onMenu = false;
+	    	}
+	    	try{
+                Thread.sleep(500);
+            }catch(Exception ex){
+                System.exit(1);
+            }
+	    }
+	    //Frame Above
 		
 		//initializing stuff
 		DisplayManager.createDisplay();
+		menuFrame.setVisible(false); //ST 
 		Loader loader = new Loader();
 //		Random random = new Random();
 		TextMaster.init(loader);
@@ -163,5 +208,8 @@ public class MainGameLoop {
 		loader.cleanUp();
 		DisplayManager.closeDisplay();
 
+			    
+			
+		
 	}
 }
