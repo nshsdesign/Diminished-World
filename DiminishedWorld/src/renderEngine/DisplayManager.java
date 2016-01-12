@@ -52,6 +52,8 @@ public class DisplayManager {
 		Display.destroy();
 	}
 	
+	
+	
 	private static long getCurrentTime(){
 		return Sys.getTime()*1000/Sys.getTimerResolution();
 	}
