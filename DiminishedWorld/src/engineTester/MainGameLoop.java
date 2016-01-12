@@ -1,7 +1,6 @@
 package engineTester;
 
 import java.io.File;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,10 +38,10 @@ import water.WaterShader;
 import water.WaterTile;
 
 import javax.swing.JFrame;
-import java.awt.*;
 import java.awt.event.*;
 import javax.swing.JButton;
 import javax.swing.AbstractButton;
+import javax.swing.ImageIcon;
 
 import menu.*;
 
@@ -61,20 +60,63 @@ public class MainGameLoop {
 	    menuPanel menuPanel = new menuPanel();
 	    menuPanel.setLayout(null);
 	    menuFrame.add(menuPanel);
-	    JButton playButton = new JButton("Play");
-	    playButton.setVerticalTextPosition(AbstractButton.CENTER);
-	    playButton.setHorizontalTextPosition(AbstractButton.LEADING);
-	    playButton.setMnemonic(KeyEvent.VK_D);
-	    playButton.setActionCommand("disable");
-	    buttonActionListener playListener = new buttonActionListener();
-	    playButton.addActionListener(playListener);
-	    playButton.setBounds(450 ,100, 300, 100);
-	    menuPanel.add(playButton);
+	    JButton newButton = new JButton("New");
+	    newButton.setVerticalTextPosition(AbstractButton.CENTER);
+	    newButton.setHorizontalTextPosition(AbstractButton.LEADING);
+	    newButton.setMnemonic(KeyEvent.VK_D);
+	    newButton.setActionCommand("disable");
+	    buttonActionListener newListener = new buttonActionListener();
+	    newButton.addActionListener(newListener);
+	    newButton.setBounds(450 ,50, 300, 100);
+	    newButton.setIcon(new ImageIcon("res/boulder.png"));
+	    JButton continueButton = new JButton("Continue");
+	    continueButton.setVerticalTextPosition(AbstractButton.CENTER);
+	    continueButton.setHorizontalTextPosition(AbstractButton.LEADING);
+	    continueButton.setMnemonic(KeyEvent.VK_D);
+	    continueButton.setActionCommand("disable");
+	    buttonActionListener continueListener = new buttonActionListener();
+	    continueButton.addActionListener(continueListener);
+	    continueButton.setBounds(450 ,200, 300, 100);
+	    continueButton.setIcon(new ImageIcon("res/barrel.png"));
+	    JButton settingsButton = new JButton("Settings");
+	    settingsButton.setVerticalTextPosition(AbstractButton.CENTER);
+	    settingsButton.setHorizontalTextPosition(AbstractButton.LEADING);
+	    settingsButton.setMnemonic(KeyEvent.VK_D);
+	    settingsButton.setActionCommand("disable");
+	    buttonActionListener settingsListener = new buttonActionListener();
+	    settingsButton.addActionListener(settingsListener);
+	    settingsButton.setBounds(450 ,350, 300, 100);
+	    settingsButton.setIcon(new ImageIcon("res/earthlikePlanetTex.png"));
+	    JButton helpButton = new JButton("Help");
+	    helpButton.setVerticalTextPosition(AbstractButton.CENTER);
+	    helpButton.setHorizontalTextPosition(AbstractButton.LEADING);
+	    helpButton.setMnemonic(KeyEvent.VK_D);
+	    helpButton.setActionCommand("disable");
+	    buttonActionListener helpListener = new buttonActionListener();
+	    helpButton.addActionListener(helpListener);
+	    helpButton.setBounds(450 ,500, 300, 100);
+	    helpButton.setIcon(new ImageIcon("res/icePlanetTex.png"));
+	    menuPanel.add(newButton);
+	    menuPanel.add(continueButton);
+	    menuPanel.add(settingsButton);
+	    menuPanel.add(helpButton);
+	    
 	    menuFrame.validate();
+	    menuPanel.repaint();
+	    menuPanel.validate();
 	    boolean onMenu = true;
 	    
 	    while(onMenu == true){
-	    	if(playListener.accButtonInfo() == true){
+	    	if(newListener.accButtonInfo() == true){
+	    		onMenu = false;
+	    	}
+	    	if(continueListener.accButtonInfo() == true){
+	    		onMenu = false;
+	    	}
+	    	if(settingsListener.accButtonInfo() == true){
+	    		onMenu = false;
+	    	}
+	    	if(helpListener.accButtonInfo() == true){
 	    		onMenu = false;
 	    	}
 	    	try{
