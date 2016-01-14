@@ -3,6 +3,7 @@ package engineTester;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
@@ -27,6 +28,7 @@ import objConverter.OBJFileLoader;
 import renderEngine.DisplayManager;
 import renderEngine.Loader;
 import renderEngine.MasterRenderer;
+import renderEngine.OBJLoader;
 import terrains.Terrain;
 import textures.ModelTexture;
 import textures.TerrainTexture;
@@ -37,133 +39,20 @@ import water.WaterRenderer;
 import water.WaterShader;
 import water.WaterTile;
 
-import javax.swing.JFrame;
-import java.awt.event.*;
-import javax.swing.JButton;
-import javax.swing.AbstractButton;
-import javax.swing.ImageIcon;
-
-import menu.*;
-
-
 public class MainGameLoop {
-	
+
 	public static void main(String[] args) {
 
-		
-		//Frame Below
-		JFrame menuFrame = new JFrame("Menu");
-	    menuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	    menuFrame.setSize(1280,720);
-	    menuFrame.setLocation(330,178);
-	    menuFrame.setVisible(true);
-	    menuPanel menuPanel = new menuPanel();
-	    menuPanel.setLayout(null);
-	    menuFrame.add(menuPanel);
-	    JButton newButton = new JButton("New");
-	    newButton.setVerticalTextPosition(AbstractButton.CENTER);
-	    newButton.setHorizontalTextPosition(AbstractButton.LEADING);
-	    newButton.setMnemonic(KeyEvent.VK_D);
-	    newButton.setActionCommand("disable");
-	    buttonActionListener newListener = new buttonActionListener();
-	    newButton.addActionListener(newListener);
-	    newButton.setBounds(425 ,50, 450, 100);
-	    newButton.setIcon(new ImageIcon("res/new.png"));
-	    newButton.setOpaque(false);
-	    newButton.setContentAreaFilled(false);
-	    newButton.setBorderPainted(false);
-	    JButton continueButton = new JButton("Continue");
-	    continueButton.setVerticalTextPosition(AbstractButton.CENTER);
-	    continueButton.setHorizontalTextPosition(AbstractButton.LEADING);
-	    continueButton.setMnemonic(KeyEvent.VK_D);
-	    continueButton.setActionCommand("disable");
-	    buttonActionListener continueListener = new buttonActionListener();
-	    continueButton.addActionListener(continueListener);
-	    continueButton.setBounds(425 ,200, 450, 100);
-	    continueButton.setIcon(new ImageIcon("res/continue.png"));
-	    continueButton.setOpaque(false);
-	    continueButton.setContentAreaFilled(false);
-	    continueButton.setBorderPainted(false);
-	    JButton settingsButton = new JButton("Settings");
-	    settingsButton.setVerticalTextPosition(AbstractButton.CENTER);
-	    settingsButton.setHorizontalTextPosition(AbstractButton.LEADING);
-	    settingsButton.setMnemonic(KeyEvent.VK_D);
-	    settingsButton.setActionCommand("disable");
-	    settingsButton.setOpaque(false);
-	    settingsButton.setContentAreaFilled(false);
-	    settingsButton.setBorderPainted(false);
-	    buttonActionListener settingsListener = new buttonActionListener();
-	    settingsButton.addActionListener(settingsListener);
-	    settingsButton.setBounds(425 ,350, 450, 100);
-	    settingsButton.setIcon(new ImageIcon("res/settings.png"));
-	    JButton helpButton = new JButton("Help");
-	    helpButton.setVerticalTextPosition(AbstractButton.CENTER);
-	    helpButton.setHorizontalTextPosition(AbstractButton.LEADING);
-	    helpButton.setMnemonic(KeyEvent.VK_D);
-	    helpButton.setActionCommand("disable");
-	    helpButton.setOpaque(false);
-	    helpButton.setContentAreaFilled(false);
-	    helpButton.setBorderPainted(false);
-	    buttonActionListener helpListener = new buttonActionListener();
-	    helpButton.addActionListener(helpListener);
-	    helpButton.setBounds(425 ,500, 450, 100);
-	    helpButton.setIcon(new ImageIcon("res/help.png"));
-	    menuPanel.add(newButton);
-	    menuPanel.add(continueButton);
-	    menuPanel.add(settingsButton);
-	    menuPanel.add(helpButton);
-	    
-	    menuFrame.validate();
-	    menuPanel.repaint();
-	    menuPanel.validate();
-	    boolean onMenu = true;
-	    
-	    while(onMenu == true){
-	    	if(newListener.accButtonInfo() == true){
-	    		onMenu = false;
-	    	}
-	    	if(continueListener.accButtonInfo() == true){
-	    		onMenu = false;
-	    	}
-	    	if(settingsListener.accButtonInfo() == true){
-	    		onMenu = false;
-	    	}
-	    	if(helpListener.accButtonInfo() == true){
-	    		onMenu = false;
-	    	}
-	    	try{
-                Thread.sleep(500);
-            }catch(Exception ex){
-                System.exit(1);
-            }
-	    }
-	    //Frame Above
-		
-		//initializing stuff
 		DisplayManager.createDisplay();
-		menuFrame.setVisible(false); //ST 
 		Loader loader = new Loader();
-//		Random random = new Random();
 		TextMaster.init(loader);
-		MasterRenderer renderer = new MasterRenderer(loader);
-		GuiRenderer guiRenderer = new GuiRenderer(loader);
 		
-		//**********Font Setup************************
-		FontType font = new FontType(loader.loadTexture("verdana"), new File("res/verdana.fnt"));
+		FontType font = new FontType(loader.loadTexture("harrington"), new File("res/harrington.fnt"));
+		GUIText text = new GUIText("This is some text!", 3f, font, new Vector2f(0f, 0f), 1f, true);
+		text.setColour(1, 0, 0);
+
+		// *********TERRAIN TEXTURE STUFF**********
 		
-		//**********Textured Model Setup************************
-		RawModel playerModel = OBJFileLoader.loadOBJ("testPlanet", loader);
-		ModelTexture playerTex = new ModelTexture(loader.loadTexture("sunTex"));
-		TexturedModel playerTexModel = new TexturedModel(playerModel, playerTex);
-		
-		//**********Normal Map Setup************************
-		TexturedModel barrelModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("barrel", loader),
-				new ModelTexture(loader.loadTexture("barrel")));
-		barrelModel.getTexture().setNormalMap(loader.loadTexture("barrelNormal"));
-		barrelModel.getTexture().setShineDamper(10);
-		barrelModel.getTexture().setReflectivity(0.5f);
-		
-		//**********Terrain Setup************************
 		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture("grassy2"));
 		TerrainTexture rTexture = new TerrainTexture(loader.loadTexture("mud"));
 		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture("grassFlowers"));
@@ -172,39 +61,114 @@ public class MainGameLoop {
 		TerrainTexturePack texturePack = new TerrainTexturePack(backgroundTexture, rTexture,
 				gTexture, bTexture);
 		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("blendMap"));
-		
 
-		//lists for keeping track of world items
-		List<Entity> entities = new ArrayList<Entity>();
-		List<Entity> normalMapEntities = new ArrayList<Entity>();
-		List<Light> lights = new ArrayList<Light>();
-		List<Terrain> terrains = new ArrayList<Terrain>();
-		List<GuiTexture> guiTextures = new ArrayList<GuiTexture>();
-		
+		// *****************************************
 
-		//**********Text Setup************************
-		//					 (String text, float fontSize, FontType font, vec2D(posX, posY), maxLineLength, boolean centered);
-		GUIText text = new GUIText("This is a test text", 2, font, new Vector2f(0.5f,0.5f), 0.5f, true);
-		text.setColor(1, 1, 1);
+		TexturedModel rocks = new TexturedModel(OBJFileLoader.loadOBJ("rocks", loader),
+				new ModelTexture(loader.loadTexture("rocks")));
 
-		//**********Light Setup************************
-		Light sun = new Light(new Vector3f(10000, 10000, -10000), new Vector3f(1.3f, 1.3f, 1.3f));
-		lights.add(sun);
-		
-		//**********Terrain Setup************************
+		ModelTexture fernTextureAtlas = new ModelTexture(loader.loadTexture("fern"));
+		fernTextureAtlas.setNumberOfRows(2);
+
+		TexturedModel fern = new TexturedModel(OBJFileLoader.loadOBJ("fern", loader),
+				fernTextureAtlas);
+
+		TexturedModel bobble = new TexturedModel(OBJFileLoader.loadOBJ("pine", loader),
+				new ModelTexture(loader.loadTexture("pine")));
+		bobble.getTexture().setHasTransparency(true);
+
+		fern.getTexture().setHasTransparency(true);
+
 		Terrain terrain = new Terrain(0, -1, loader, texturePack, blendMap, "heightmap");
+		List<Terrain> terrains = new ArrayList<Terrain>();
 		terrains.add(terrain);
 
-		//**********Camera and Player Setup************************
-		Camera camera = new Camera(Camera.FIRST_PERSON);
-		Player player = new Player(camera, playerTexModel, new Vector3f(100, 0, 0), 0, 0, 0, 1);
+		TexturedModel lamp = new TexturedModel(OBJLoader.loadObjModel("lamp", loader),
+				new ModelTexture(loader.loadTexture("lamp")));
+		lamp.getTexture().setUseFakeLighting(true);
+
+		List<Entity> entities = new ArrayList<Entity>();
+		List<Entity> normalMapEntities = new ArrayList<Entity>();
+		
+		//******************NORMAL MAP MODELS************************
+		
+		TexturedModel barrelModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("barrel", loader),
+				new ModelTexture(loader.loadTexture("barrel")));
+		barrelModel.getTexture().setNormalMap(loader.loadTexture("barrelNormal"));
+		barrelModel.getTexture().setShineDamper(10);
+		barrelModel.getTexture().setReflectivity(0.5f);
+		
+		TexturedModel crateModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("crate", loader),
+				new ModelTexture(loader.loadTexture("crate")));
+		crateModel.getTexture().setNormalMap(loader.loadTexture("crateNormal"));
+		crateModel.getTexture().setShineDamper(10);
+		crateModel.getTexture().setReflectivity(0.5f);
+		
+		TexturedModel boulderModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("boulder", loader),
+				new ModelTexture(loader.loadTexture("boulder")));
+		boulderModel.getTexture().setNormalMap(loader.loadTexture("boulderNormal"));
+		boulderModel.getTexture().setShineDamper(10);
+		boulderModel.getTexture().setReflectivity(0.5f);
+		
+		
+		//************ENTITIES*******************
+		
+		Entity entity = new Entity(barrelModel, new Vector3f(75, 10, -75), 0, 0, 0, 1f);
+		Entity entity2 = new Entity(boulderModel, new Vector3f(85, 10, -75), 0, 0, 0, 1f);
+		Entity entity3 = new Entity(crateModel, new Vector3f(65, 10, -75), 0, 0, 0, 0.04f);
+		normalMapEntities.add(entity);
+		normalMapEntities.add(entity2);
+		normalMapEntities.add(entity3);
+		
+		Random random = new Random(5666778);
+		for (int i = 0; i < 60; i++) {
+			if (i % 3 == 0) {
+				float x = random.nextFloat() * 150;
+				float z = random.nextFloat() * -150;
+				if ((x > 50 && x < 100) || (z < -50 && z > -100)) {
+				} else {
+					float y = terrain.getHeightOfTerrain(x, z);
+
+					entities.add(new Entity(fern, 3, new Vector3f(x, y, z), 0,
+							random.nextFloat() * 360, 0, 0.9f));
+				}
+			}
+			if (i % 2 == 0) {
+
+				float x = random.nextFloat() * 150;
+				float z = random.nextFloat() * -150;
+				if ((x > 50 && x < 100) || (z < -50 && z > -100)) {
+
+				} else {
+					float y = terrain.getHeightOfTerrain(x, z);
+					entities.add(new Entity(bobble, 1, new Vector3f(x, y, z), 0,
+							random.nextFloat() * 360, 0, random.nextFloat() * 0.6f + 0.8f));
+				}
+			}
+		}
+		entities.add(new Entity(rocks, new Vector3f(75, 4.6f, -75), 0, 0, 0, 75));
+		
+		//*******************OTHER SETUP***************
+
+		List<Light> lights = new ArrayList<Light>();
+		Light sun = new Light(new Vector3f(10000, 10000, -10000), new Vector3f(1.3f, 1.3f, 1.3f));
+		lights.add(sun);
+
+		MasterRenderer renderer = new MasterRenderer(loader);
+
+		RawModel bunnyModel = OBJLoader.loadObjModel("person", loader);
+		TexturedModel stanfordBunny = new TexturedModel(bunnyModel, new ModelTexture(
+				loader.loadTexture("playerTexture")));
+
+		Player player = new Player(stanfordBunny, new Vector3f(75, 5, -75), 0, 100, 0, 0.6f);
 		entities.add(player);
-		
-		//**********Mouse Picker Setup************************
-		//lets you get the coords of where the mouse is on the terrain
+		Camera camera = new Camera(player);
+		List<GuiTexture> guiTextures = new ArrayList<GuiTexture>();
+		GuiRenderer guiRenderer = new GuiRenderer(loader);
 		MousePicker picker = new MousePicker(camera, renderer.getProjectionMatrix(), terrain);
+	
+		//**********Water Renderer Set-up************************
 		
-		//**********Water Renderer Setup************************
 		WaterFrameBuffers buffers = new WaterFrameBuffers();
 		WaterShader waterShader = new WaterShader();
 		WaterRenderer waterRenderer = new WaterRenderer(loader, waterShader, renderer.getProjectionMatrix(), buffers);
@@ -212,24 +176,18 @@ public class MainGameLoop {
 		WaterTile water = new WaterTile(75, -75, 0);
 		waters.add(water);
 		
-		//**********Extra items************************
-		Light l = new Light(new Vector3f(0, 0, 0), new Vector3f(.5f, .5f, .5f));
-		lights.add(l);
-		
+		//****************Game Loop Below*********************
+
 		while (!Display.isCloseRequested()) {
-			if(camera.getType() != Camera.FREE_ROAM)player.move();
+			player.move(terrain);
 			camera.move();
 			picker.update();
-			for (Entity e : entities) {
-				e.update();
-			}
-			for (Entity e : normalMapEntities) {
-				e.update();
-			}
-
+			entity.increaseRotation(0, 1, 0);
+			entity2.increaseRotation(0, 1, 0);
+			entity3.increaseRotation(0, 1, 0);
 			GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
 			
-			//render reflection teture
+			//render reflection texture
 			buffers.bindReflectionFrameBuffer();
 			float distance = 2 * (camera.getPosition().y - water.getHeight());
 			camera.getPosition().y -= distance;
@@ -251,8 +209,9 @@ public class MainGameLoop {
 			TextMaster.render();
 			
 			DisplayManager.updateDisplay();
-
 		}
+
+		//*********Clean Up Below**************
 		
 		TextMaster.cleanUp();
 		buffers.cleanUp();
@@ -262,8 +221,7 @@ public class MainGameLoop {
 		loader.cleanUp();
 		DisplayManager.closeDisplay();
 
-			    
-			
-		
 	}
+
+
 }
