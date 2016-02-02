@@ -22,6 +22,7 @@ import guis.GuiRenderer;
 import guis.GuiTexture;
 import models.RawModel;
 import models.TexturedModel;
+import music.audioPlayer;
 import normalMappingObjConverter.NormalMappedObjLoader;
 import objConverter.OBJFileLoader;
 import renderEngine.DisplayManager;
@@ -117,6 +118,10 @@ public class MainGameLoop {
 	    menuPanel.repaint();
 	    menuPanel.validate();
 	    boolean onMenu = true;
+	    NewWindowListener menuWindowListener = new NewWindowListener();
+	    menuFrame.addWindowListener(menuWindowListener);
+	    audioPlayer audio = new audioPlayer();
+		audio.play("res/menuSongWav.wav");
 	    
 	    while(onMenu == true){
 	    	if(newListener.accButtonInfo() == true){
@@ -136,7 +141,11 @@ public class MainGameLoop {
             }catch(Exception ex){
                 System.exit(1);
             }
+	    	if(menuWindowListener.accIsClosed() == true){
+	    		audio.close();
+	    	}
 	    }
+	    audio.close();
 	    //Frame Above
 		
 		//initializing stuff
