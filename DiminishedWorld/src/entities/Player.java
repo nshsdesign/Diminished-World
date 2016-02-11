@@ -19,12 +19,19 @@ public class Player extends Entity {
 	float dy = 0;
 
 	private Camera camera;
+	
+	int sanity;
+	int sprint;
+	int amountOfDust;
 
 	public Player(Camera camera, TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ,
 			float scale) {
 		super(model, position, rotX, rotY, rotZ, scale);
 		this.camera = camera;
 		camera.setPlayer(this);
+		sanity = 0;
+		sprint = 0;
+		amountOfDust = 0;
 	}
 
 	public void move() {
@@ -79,6 +86,24 @@ public class Player extends Entity {
 		if (Keyboard.isKeyDown(Keyboard.KEY_F)) {
 			this.setRotZ(this.getRotZ() - 1f);
 		}
+	}
+	public void modSanity(int newSanity){
+		sanity = newSanity;
+	}
+	public void modSprint(int newSprint){
+		sprint = newSprint;
+	}
+	public void amountOfDust(int newAmount){
+		amountOfDust = newAmount;
+	}
+	public int accSanity(){
+		return sanity;
+	}
+	public int accSprint(){
+		return sprint;
+	}
+	public int accDustAmount(){
+		return amountOfDust;
 	}
 
 }
