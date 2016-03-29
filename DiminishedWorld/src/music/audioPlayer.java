@@ -9,6 +9,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
@@ -30,6 +31,7 @@ public class audioPlayer implements LineListener {
     AudioFormat format;
     DataLine.Info info;
     Clip audioClip;
+    FloatControl gainControl;
      
     /**
      * Play a given audio file.
@@ -50,8 +52,14 @@ public class audioPlayer implements LineListener {
             audioClip.addLineListener(this);
  
             audioClip.open(audioStream);
+            
+            gainControl = 
+            	    (FloatControl) audioClip.getControl(FloatControl.Type.MASTER_GAIN);
+            	//gainControl.setValue(-10.0f); // Reduce volume by 10 decibels.
+                gainControl.setValue(6.0f);
              
             audioClip.start();
+            
             
             
             
@@ -96,6 +104,20 @@ public class audioPlayer implements LineListener {
             System.out.println("Playback completed.");
         }
  
+    }
+    
+    public void modVolume(int newVolume){
+    	if(newVolume/10f > 6f){
+    		gainControl.setValue(6f);
+    	}else if(newVolume*1f < -80){
+    		gainControl.setValue(-80);
+    	}else{
+    		if(newVolume >= 0){
+    			gainControl.setValue(newVolume/10f);
+    		}else{
+    			gainControl.setValue(newVolume*1f);
+    		}
+    	}
     }
     
     public void close(){

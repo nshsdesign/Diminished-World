@@ -26,7 +26,7 @@ public class Player extends Entity {
 
 	public Player(Camera camera, TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ,
 			float scale) {
-		super(model, position, rotX, rotY, rotZ, scale);
+		super(model, position, rotX, rotY, rotZ, scale, false, "player");
 		this.camera = camera;
 		camera.setPlayer(this);
 		sanity = 0;
@@ -38,7 +38,12 @@ public class Player extends Entity {
 		speed = MOVE_SPEED * DisplayManager.getFrameTimeSeconds();
 		checkInputs();
 	}
-
+	
+	public void move(String face) {
+		speed = MOVE_SPEED * DisplayManager.getFrameTimeSeconds();
+		checkInputs(face);
+	}
+	
 	private void checkInputs() {
 		float yaw = -90 - this.getRotY();
 		float pitch = this.getRotZ();
@@ -87,6 +92,61 @@ public class Player extends Entity {
 			this.setRotZ(this.getRotZ() - 1f);
 		}
 	}
+	private void checkInputs(String face) {
+		float yaw = -90 - this.getRotY();
+		float pitch = this.getRotZ();
+
+		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+			speed *= SPRINT_MULT;
+		}
+		if (camera.getType() == Camera.FIRST_PERSON || camera.getType() == Camera.THIRD_PERSON) {
+			if ((Keyboard.isKeyDown(Keyboard.KEY_W)) && (!face.equals("right"))) {
+				dz = (float) (speed * Math.cos(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90)));
+				dx = (float) (-speed * Math.sin(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90)));
+				dy = (float) (-speed * Math.sin(Math.toRadians(pitch))); // correct
+				position.z += dz;
+				position.x += dx;
+				position.y += dy;
+				if (camera.getType() == Camera.THIRD_PERSON) {
+					if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
+						this.setRotY(this.getRotY() - TURN_SPEED);
+					}
+					if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
+						this.setRotY(this.getRotY() + TURN_SPEED);
+					}
+				}
+			}
+			if ((Keyboard.isKeyDown(Keyboard.KEY_S)) && (!face.equals("left"))) {
+				dz = (float) (-speed * Math.cos(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90)));
+				dx = (float) (speed * Math.sin(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90)));
+				dy = (float) (speed * Math.sin(Math.toRadians(pitch)));
+				position.z += dz;
+				position.x += dx;
+				position.y += dy;
+				if (camera.getType() == Camera.THIRD_PERSON) {
+					if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
+						this.setRotY(this.getRotY() - TURN_SPEED);
+					}
+					if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
+						this.setRotY(this.getRotY() + TURN_SPEED);
+					}
+				}
+			}
+		}
+		if (Keyboard.isKeyDown(Keyboard.KEY_R)) {
+			this.setRotZ(this.getRotZ() + 1f);
+		}
+		if (Keyboard.isKeyDown(Keyboard.KEY_F)) {
+			this.setRotZ(this.getRotZ() - 1f);
+		}
+		if ((Keyboard.isKeyDown(Keyboard.KEY_SPACE)) && (!face.equals("up"))) {
+			position.y += 1;
+		}
+		if ((Keyboard.isKeyDown(Keyboard.KEY_V)) && (!face.equals("down"))) {
+			position.y -= 1;
+		}
+	}
+
 	public void modSanity(int newSanity){
 		sanity = newSanity;
 	}
