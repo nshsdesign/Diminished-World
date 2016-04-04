@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -398,6 +399,12 @@ public class MainGameLoop {
 		barrelModel.getTexture().setNormalMap(loader.loadTexture("barrelNormal"));
 		barrelModel.getTexture().setShineDamper(10);
 		barrelModel.getTexture().setReflectivity(0.5f);
+		
+		TexturedModel testPlanetModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("testPlanet", loader),
+				new ModelTexture(loader.loadTexture("TestPlanetTex")));
+		testPlanetModel.getTexture().setNormalMap(loader.loadTexture("TestPlanetTex"));
+		testPlanetModel.getTexture().setShineDamper(10);
+		testPlanetModel.getTexture().setReflectivity(0.5f);
 
 		//Basic BarrelBox = new Basic(new Vector3f(75, 10, -50), new Vector3f(10, 13, 10), "Barrel");
 
@@ -466,6 +473,7 @@ public class MainGameLoop {
 		Camera camera = new Camera(Camera.FIRST_PERSON);
 		Player player = new Player(camera, playerTexModel, new Vector3f(100, 0, 0), 0, 0, 0, 1);
 		entities.add(player);
+		int playerEntityPosition = entities.size() - 1;
 
 		Basic PlayerBox = new Basic(new Vector3f(75, 10, 0), new Vector3f(5, 10, 5), "Player");
 
@@ -509,23 +517,74 @@ public class MainGameLoop {
 		float barrelModelSize = normalMapEntities.get(barrelModelPosition).getScale(); //ST
 		int time=0;
 		boolean needToGrowBack = false;
-
+		
+		normalMapEntities.add(new Entity(testPlanetModel, PlayerBox.accVectorPoints(), 0, 0, 0, 1f, true, "testPlanetModel"));
+		Vector3f newVectors;
+		 
+		ArrayList<Integer[]> tempEntities = new ArrayList<Integer[]>();
+	    Integer[] tempEntityIntegerStart = new Integer[2];
+	    tempEntityIntegerStart[1] = 300;
+	    tempEntityIntegerStart[0] = 0;
+	    
+	    boolean didThisRun = false;
+	    
 		while (!Display.isCloseRequested()) {
 			if(camera.getType() != Camera.FREE_ROAM)player.move();
 			camera.move();
 			picker.update();
-//			for (Entity e : entities) {
-//				e.update();
-//			}
-//			for (Entity e : normalMapEntities) {
-//				e.update();
-//			}
+			/**
+			for (Entity e : entities) {
+				e.update();
+			}
+			for (Entity e : normalMapEntities) {
+				e.update();
+			}
+			*/
 			//ST BELOW
 			GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
+			
 
 			//if(time < 300){
 				//time++;
 			//}else{
+			if(Mouse.isButtonDown(0) == true){
+				tempEntityIntegerStart = new Integer[2];
+			    tempEntityIntegerStart[1] = 300;
+			    tempEntityIntegerStart[0] = 0;
+				//entities.get(playerEntityPosition);
+				System.out.println("Button is down");
+				//normalMapEntities.add(new Entity(testPlanetModel, PlayerBox.accVectorPoints(), 0, 0, 0, 1f, true, "testPlanetModel"));
+				newVectors = new Vector3f(PlayerBox.accX(), PlayerBox.accY(), PlayerBox.accZ());
+				normalMapEntities.add(new Entity(testPlanetModel, newVectors, 0, 0, 0, 1f, true, "testPlanetModel"));
+				System.out.println("Normal Map Entity Size: " + normalMapEntities.size());
+				tempEntityIntegerStart[0] = normalMapEntities.size()-1;
+			    tempEntities.add(tempEntityIntegerStart);
+			    System.out.println("Temp Entitiy Value B: " +tempEntities.get(tempEntities.size()-1)[0].intValue());
+				
+			}
+			for(int y=0; y<tempEntities.size(); y++){
+				if(didThisRun == false){
+					tempEntities.get(y)[1] = tempEntities.get(y)[1].intValue()-1;
+					System.out.println(y +"y: " + (tempEntities.get(y)[1].intValue()-1));
+					if(tempEntities.get(y)[1].intValue() < 1){
+						didThisRun=true;
+						System.out.println("Temp Entitiy Value A: " +tempEntities.get(y)[0].intValue());
+						System.out.println("B Normal Map Entity Size: " + normalMapEntities.size());
+						normalMapEntities.remove(tempEntities.get(y)[0].intValue());
+						System.out.println("A Normal Map Entity Size: " + normalMapEntities.size());
+						System.out.println("Temp Entitiy Value Br: " +tempEntities.get(tempEntities.size()-1)[0].intValue());
+						tempEntities.remove(y);
+						//System.out.println("Temp Entitiy Value Ar: " +tempEntities.get(tempEntities.size()-1)[0].intValue());
+						for(int x=0; x<tempEntities.size(); x++){
+							System.out.println(x + "bx: " + tempEntities.get(x)[0].intValue());
+							tempEntities.get(x)[0] = tempEntities.get(x)[0].intValue()-1;
+							System.out.println(x + "ax: " + tempEntities.get(x)[0].intValue());
+						}
+					}
+				}
+				
+			}
+			didThisRun = false;
 			/**
 			if(normalMapEntities.get(barrelModelPosition).getIsShrinking() == true){
 			    barrelModelSize = normalMapEntities.get(barrelModelPosition).getScale(); //ST
@@ -586,12 +645,12 @@ public class MainGameLoop {
 			PlayerBox.setBoxPos(player.getPosition());
 			if((!PlayerBox.checkCollisions(BoulderBox)) && (!PlayerBox.checkCollisions(FloorBox))) {
 				player.move();
-				System.out.println("1");
+				//System.out.println("1");
 			}else{
 				//needToGrowBack = true;
 			}
 			if((PlayerBox.checkCollisions(BoulderBox))) {
-				System.out.println("2");
+				//System.out.println("2");
 				if(barrelModelSize > normalMapEntities.get(barrelModelPosition).getMinScale()){
 					barrelModelSize=barrelModelSize-0.01f;
 					time = 0;
@@ -605,9 +664,9 @@ public class MainGameLoop {
 			}
 			if((PlayerBox.checkCollisions(FloorBox))) {
 				player.move(PlayerBox.checkFaceCollisions(FloorBox));
-				System.out.println("3");
+				//System.out.println("3");
 			}
-			System.out.println("Character Points: " + PlayerBox.accPositionPoints());
+			//System.out.println("Character Points: " + PlayerBox.accPositionPoints());
 
 			if(normalMapEntities.get(barrelModelPosition).getIsShrinking() == true){
 			    barrelModelSize = normalMapEntities.get(barrelModelPosition).getScale(); //ST
@@ -625,7 +684,7 @@ public class MainGameLoop {
 			if(needToGrowBack==true){
 				if(time < 500){
 					time++;
-					System.out.println(time);
+					//System.out.println(time);
 				}else{
 					if(barrelModelSize < normalMapEntities.get(barrelModelPosition).getMaxScale()){
 						barrelModelSize=barrelModelSize+0.01f;

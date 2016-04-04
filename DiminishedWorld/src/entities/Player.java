@@ -1,6 +1,7 @@
 package entities;
 
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.util.vector.Vector3f;
 
 import models.TexturedModel;
@@ -20,9 +21,11 @@ public class Player extends Entity {
 
 	private Camera camera;
 	
-	int sanity;
-	int sprint;
-	int amountOfDust;
+	private boolean hasRayGun;
+	
+	private int sanity;
+	private int sprint;
+	private int amountOfDust;
 
 	public Player(Camera camera, TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ,
 			float scale) {
@@ -32,6 +35,7 @@ public class Player extends Entity {
 		sanity = 0;
 		sprint = 0;
 		amountOfDust = 0;
+		hasRayGun = true; //ST FOR TESTS SHOULD START AS FALSE
 	}
 
 	public void move() {
@@ -92,6 +96,11 @@ public class Player extends Entity {
 			this.setRotZ(this.getRotZ() - 1f);
 		}
 	}
+	
+	private boolean testLeftClick(){
+		return Mouse.isButtonDown(0); // 0 is Left, 1 is Right		
+	}
+	
 	private void checkInputs(String face) {
 		float yaw = -90 - this.getRotY();
 		float pitch = this.getRotZ();
