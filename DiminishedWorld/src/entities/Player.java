@@ -155,6 +155,17 @@ public class Player extends Entity {
 			position.y -= 1;
 		}
 	}
+	
+	public float[] accInfoForRayGun(){
+		float[] infoForRay = new float[6];
+		float yaw = -90 - this.getRotY();
+		float pitch = this.getRotZ();
+		infoForRay[0] = (float) (-speed * Math.sin(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90))); //dx
+	    infoForRay[1] = (float) (-speed * Math.sin(Math.toRadians(pitch))); // correct dy
+		infoForRay[2] = (float) (speed * Math.cos(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90))); //dz
+		
+		return infoForRay;
+	}
 
 	public void modSanity(int newSanity){
 		sanity = newSanity;

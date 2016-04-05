@@ -122,6 +122,18 @@ public class Entity {
 	public void setPosition(Vector3f position) {
 		this.position = position;
 	}
+	
+	public float getX(){
+		return this.position.x;
+	}
+	
+	public float getY(){
+		return this.position.y;
+	}
+	
+	public float getZ(){
+		return this.position.z;
+	}
 
 	public float getRotX() {
 		return rotX;

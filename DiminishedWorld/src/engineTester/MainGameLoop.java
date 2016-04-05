@@ -399,7 +399,7 @@ public class MainGameLoop {
 		barrelModel.getTexture().setNormalMap(loader.loadTexture("barrelNormal"));
 		barrelModel.getTexture().setShineDamper(10);
 		barrelModel.getTexture().setReflectivity(0.5f);
-		
+
 		TexturedModel testPlanetModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("testPlanet", loader),
 				new ModelTexture(loader.loadTexture("TestPlanetTex")));
 		testPlanetModel.getTexture().setNormalMap(loader.loadTexture("TestPlanetTex"));
@@ -517,17 +517,24 @@ public class MainGameLoop {
 		float barrelModelSize = normalMapEntities.get(barrelModelPosition).getScale(); //ST
 		int time=0;
 		boolean needToGrowBack = false;
-		
+
 		normalMapEntities.add(new Entity(testPlanetModel, PlayerBox.accVectorPoints(), 0, 0, 0, 1f, true, "testPlanetModel"));
 		Vector3f newVectors;
-		 
-		ArrayList<Integer[]> tempEntities = new ArrayList<Integer[]>();
-	    Integer[] tempEntityIntegerStart = new Integer[2];
-	    tempEntityIntegerStart[1] = 300;
-	    tempEntityIntegerStart[0] = 0;
-	    
+
+		ArrayList<Float[]> tempEntities = new ArrayList<Float[]>();
+	    Float[] tempEntityFloatStart = new Float[8];
+	    tempEntityFloatStart[1] = 300f;
+	    tempEntityFloatStart[0] = 0f;
+
+	    float[] tempRayStuff = player.accInfoForRayGun();
+	    tempEntityFloatStart[2] = tempRayStuff[0];
+	    tempEntityFloatStart[3] = tempRayStuff[1];
+	    tempEntityFloatStart[4] = tempRayStuff[2];
+	    tempEntityFloatStart[5] = PlayerBox.accX();
+	    tempEntityFloatStart[6] = PlayerBox.accY();
+	    tempEntityFloatStart[7] = PlayerBox.accZ();
+
 	    boolean didThisRun = false;
-	    
 		while (!Display.isCloseRequested()) {
 			if(camera.getType() != Camera.FREE_ROAM)player.move();
 			camera.move();
@@ -542,30 +549,46 @@ public class MainGameLoop {
 			*/
 			//ST BELOW
 			GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
-			
+
 
 			//if(time < 300){
 				//time++;
 			//}else{
 			if(Mouse.isButtonDown(0) == true){
-				tempEntityIntegerStart = new Integer[2];
-			    tempEntityIntegerStart[1] = 300;
-			    tempEntityIntegerStart[0] = 0;
+				tempEntityFloatStart = new Float[11];
+			    tempEntityFloatStart[1] = 300f;
+			    tempEntityFloatStart[0] = 0f;
+			    tempRayStuff = player.accInfoForRayGun();
+			    tempEntityFloatStart[2] = tempRayStuff[0];
+			    tempEntityFloatStart[3] = tempRayStuff[1];
+			    tempEntityFloatStart[4] = tempRayStuff[2];
+			    tempEntityFloatStart[5] = PlayerBox.accX();
+			    tempEntityFloatStart[6] = PlayerBox.accY();
+			    tempEntityFloatStart[7] = PlayerBox.accZ();
+			    
+			    
+			    //tempEntityFloatStart[5] = PlayerBox.accX()+(5*tempEntityFloatStart[2]);
+			    //tempEntityFloatStart[6] = PlayerBox.accY()+(5*tempEntityFloatStart[3]);
+			    //tempEntityFloatStart[7] = PlayerBox.accZ()+(5*tempEntityFloatStart[4]);
 				//entities.get(playerEntityPosition);
 				System.out.println("Button is down");
 				//normalMapEntities.add(new Entity(testPlanetModel, PlayerBox.accVectorPoints(), 0, 0, 0, 1f, true, "testPlanetModel"));
 				newVectors = new Vector3f(PlayerBox.accX(), PlayerBox.accY(), PlayerBox.accZ());
 				normalMapEntities.add(new Entity(testPlanetModel, newVectors, 0, 0, 0, 1f, true, "testPlanetModel"));
 				System.out.println("Normal Map Entity Size: " + normalMapEntities.size());
-				tempEntityIntegerStart[0] = normalMapEntities.size()-1;
-			    tempEntities.add(tempEntityIntegerStart);
+				tempEntityFloatStart[0] = (float)normalMapEntities.size()-1;
+			    tempEntities.add(tempEntityFloatStart);
 			    System.out.println("Temp Entitiy Value B: " +tempEntities.get(tempEntities.size()-1)[0].intValue());
-				
+
 			}
 			for(int y=0; y<tempEntities.size(); y++){
 				if(didThisRun == false){
-					tempEntities.get(y)[1] = tempEntities.get(y)[1].intValue()-1;
+					tempEntities.get(y)[1] = tempEntities.get(y)[1].floatValue()-1;
 					System.out.println(y +"y: " + (tempEntities.get(y)[1].intValue()-1));
+					//normalMapEntities.get((int)tempEntities.get(y)[0].floatValue()).getX() + tempEntities.get(y)[5].floatValue();
+					//normalMapEntities.get((int)tempEntities.get(y)[0].floatValue()).setPosition(new Vector3f(PlayerBox.accX(), PlayerBox.accY(), PlayerBox.accZ()));
+				    
+					normalMapEntities.get((int)tempEntities.get(y)[0].floatValue()).setPosition(new Vector3f(normalMapEntities.get((int)tempEntities.get(y)[0].floatValue()).getX() + (tempEntities.get(y)[2].floatValue()*3), normalMapEntities.get((int)tempEntities.get(y)[0].floatValue()).getY() + (tempEntities.get(y)[3].floatValue()*3), normalMapEntities.get((int)tempEntities.get(y)[0].floatValue()).getZ() + (tempEntities.get(y)[4].floatValue()*3)));
 					if(tempEntities.get(y)[1].intValue() < 1){
 						didThisRun=true;
 						System.out.println("Temp Entitiy Value A: " +tempEntities.get(y)[0].intValue());
@@ -577,12 +600,12 @@ public class MainGameLoop {
 						//System.out.println("Temp Entitiy Value Ar: " +tempEntities.get(tempEntities.size()-1)[0].intValue());
 						for(int x=0; x<tempEntities.size(); x++){
 							System.out.println(x + "bx: " + tempEntities.get(x)[0].intValue());
-							tempEntities.get(x)[0] = tempEntities.get(x)[0].intValue()-1;
+							tempEntities.get(x)[0] = (float)tempEntities.get(x)[0].intValue()-1;
 							System.out.println(x + "ax: " + tempEntities.get(x)[0].intValue());
 						}
 					}
 				}
-				
+
 			}
 			didThisRun = false;
 			/**
