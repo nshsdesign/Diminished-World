@@ -474,7 +474,8 @@ public class MainGameLoop {
 		lights.add(sun);
 
 		//**********Terrain Setup************************
-		Terrain terrain = new Terrain(0, -1, loader, texturePack, blendMap, "heightmap");
+		//Terrain terrain = new Terrain(0, -1, loader, texturePack, blendMap, "heightmap");
+		Terrain terrain = new Terrain(0, -1000000, loader, texturePack, blendMap, "heightmap");
 		terrains.add(terrain);
 
 		//**********Camera and Player Setup************************
@@ -494,7 +495,8 @@ public class MainGameLoop {
 		WaterShader waterShader = new WaterShader();
 		WaterRenderer waterRenderer = new WaterRenderer(loader, waterShader, renderer.getProjectionMatrix(), buffers);
 		List<WaterTile> waters = new ArrayList<WaterTile>();
-		WaterTile water = new WaterTile(75, -75, 0);
+		//WaterTile water = new WaterTile(75, -75, 0);
+		WaterTile water = new WaterTile(75, -75000000, 0);
 		waters.add(water);
 
 		//**********Extra items************************
@@ -517,7 +519,7 @@ public class MainGameLoop {
 
 		//normalMapEntities.add(new Entity(structure3TexModel, new Vector3f(0, 0, 0), 0, 0, 0, 1f, true, "structure3Model"));
 		normalMapEntities.add(new Entity(barrelModel, new Vector3f(barrelX, barrelY, barrelZ), 0, 0, 0, 1f, true, "barrelModel"));
-		Basic BoulderBox = new Basic(new Vector3f(barrelX, barrelY, barrelZ), new Vector3f(300, 300, 300), "Boulder");
+		Basic BoulderBox = new Basic(new Vector3f(barrelX, barrelY, barrelZ), new Vector3f(5, 13, 5), "Boulder");
 
 
 
@@ -527,7 +529,7 @@ public class MainGameLoop {
 		boolean needToGrowBack = false;
 
 		normalMapEntities.add(new Entity(testPlanetModel, new Vector3f(player.accX(), player.accY(), player.accZ()), 0, 0, 0, .001f, true, "testPlanetModel"));
-		normalMapEntities.add(new Entity(structureModel, new Vector3f(90f, 10, -100f), 0, 0, 0, 10f, true, "structureModel"));
+		//normalMapEntities.add(new Entity(structureModel, new Vector3f(90f, 10, -100f), 0, 0, 0, 10f, true, "structureModel"));
 		Vector3f newVectors;
 
 		ArrayList<Float[]> tempEntities = new ArrayList<Float[]>();
