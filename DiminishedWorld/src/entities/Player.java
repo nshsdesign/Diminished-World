@@ -185,5 +185,14 @@ public class Player extends Entity {
 	public int accDustAmount(){
 		return amountOfDust;
 	}
+	public float accX(){
+		return this.position.x;
+	}
+	public float accY(){
+		return this.position.y;
+	}
+	public float accZ(){
+		return this.position.z;
+	}
 
 }

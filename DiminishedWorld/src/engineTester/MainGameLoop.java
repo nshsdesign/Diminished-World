@@ -393,6 +393,8 @@ public class MainGameLoop {
 		ModelTexture playerTex = new ModelTexture(loader.loadTexture("sunTex"));
 		TexturedModel playerTexModel = new TexturedModel(playerModel, playerTex);
 
+
+
 		//**********Normal Map Setup************************
 		TexturedModel barrelModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("barrel", loader),
 				new ModelTexture(loader.loadTexture("barrel")));
@@ -405,6 +407,12 @@ public class MainGameLoop {
 		testPlanetModel.getTexture().setNormalMap(loader.loadTexture("TestPlanetTex"));
 		testPlanetModel.getTexture().setShineDamper(10);
 		testPlanetModel.getTexture().setReflectivity(0.5f);
+
+		TexturedModel structureModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("structure3withOpening", loader),
+				new ModelTexture(loader.loadTexture("sunTex")));
+		structureModel.getTexture().setNormalMap(loader.loadTexture("sunTex"));
+		structureModel.getTexture().setShineDamper(10);
+		structureModel.getTexture().setReflectivity(0.5f);
 
 		//Basic BarrelBox = new Basic(new Vector3f(75, 10, -50), new Vector3f(10, 13, 10), "Barrel");
 
@@ -509,7 +517,7 @@ public class MainGameLoop {
 
 		//normalMapEntities.add(new Entity(structure3TexModel, new Vector3f(0, 0, 0), 0, 0, 0, 1f, true, "structure3Model"));
 		normalMapEntities.add(new Entity(barrelModel, new Vector3f(barrelX, barrelY, barrelZ), 0, 0, 0, 1f, true, "barrelModel"));
-		Basic BoulderBox = new Basic(new Vector3f(barrelX, barrelY, barrelZ), new Vector3f(500, 500, 500), "Boulder");
+		Basic BoulderBox = new Basic(new Vector3f(barrelX, barrelY, barrelZ), new Vector3f(300, 300, 300), "Boulder");
 
 
 
@@ -518,27 +526,33 @@ public class MainGameLoop {
 		int time=0;
 		boolean needToGrowBack = false;
 
-		normalMapEntities.add(new Entity(testPlanetModel, PlayerBox.accVectorPoints(), 0, 0, 0, 1f, true, "testPlanetModel"));
+		normalMapEntities.add(new Entity(testPlanetModel, new Vector3f(player.accX(), player.accY(), player.accZ()), 0, 0, 0, .001f, true, "testPlanetModel"));
+		normalMapEntities.add(new Entity(structureModel, new Vector3f(90f, 10, -100f), 0, 0, 0, 10f, true, "structureModel"));
 		Vector3f newVectors;
 
 		ArrayList<Float[]> tempEntities = new ArrayList<Float[]>();
 	    Float[] tempEntityFloatStart = new Float[8];
 	    tempEntityFloatStart[1] = 300f;
 	    tempEntityFloatStart[0] = 0f;
+	    ArrayList<Basic> rayBoxes = new ArrayList<Basic>();
+	    Basic tempBasic = new Basic(player.getPosition(), new Vector3f(100, 100, 100), "ray");
 
 	    float[] tempRayStuff = player.accInfoForRayGun();
 	    tempEntityFloatStart[2] = tempRayStuff[0];
 	    tempEntityFloatStart[3] = tempRayStuff[1];
 	    tempEntityFloatStart[4] = tempRayStuff[2];
-	    tempEntityFloatStart[5] = PlayerBox.accX();
-	    tempEntityFloatStart[6] = PlayerBox.accY();
-	    tempEntityFloatStart[7] = PlayerBox.accZ();
+	    tempEntityFloatStart[5] = player.accX();
+	    tempEntityFloatStart[6] = player.accY();
+	    tempEntityFloatStart[7] = player.accZ();
 
 	    boolean didThisRun = false;
+	    int defaultFireTime = 25;
+	    int fireTime = 0;
 		while (!Display.isCloseRequested()) {
 			if(camera.getType() != Camera.FREE_ROAM)player.move();
 			camera.move();
 			picker.update();
+			fireTime--;
 			/**
 			for (Entity e : entities) {
 				e.update();
@@ -554,54 +568,61 @@ public class MainGameLoop {
 			//if(time < 300){
 				//time++;
 			//}else{
+
 			if(Mouse.isButtonDown(0) == true){
-				tempEntityFloatStart = new Float[11];
-			    tempEntityFloatStart[1] = 300f;
-			    tempEntityFloatStart[0] = 0f;
-			    tempRayStuff = player.accInfoForRayGun();
-			    tempEntityFloatStart[2] = tempRayStuff[0];
-			    tempEntityFloatStart[3] = tempRayStuff[1];
-			    tempEntityFloatStart[4] = tempRayStuff[2];
-			    tempEntityFloatStart[5] = PlayerBox.accX();
-			    tempEntityFloatStart[6] = PlayerBox.accY();
-			    tempEntityFloatStart[7] = PlayerBox.accZ();
-			    
-			    
-			    //tempEntityFloatStart[5] = PlayerBox.accX()+(5*tempEntityFloatStart[2]);
-			    //tempEntityFloatStart[6] = PlayerBox.accY()+(5*tempEntityFloatStart[3]);
-			    //tempEntityFloatStart[7] = PlayerBox.accZ()+(5*tempEntityFloatStart[4]);
-				//entities.get(playerEntityPosition);
-				System.out.println("Button is down");
-				//normalMapEntities.add(new Entity(testPlanetModel, PlayerBox.accVectorPoints(), 0, 0, 0, 1f, true, "testPlanetModel"));
-				newVectors = new Vector3f(PlayerBox.accX(), PlayerBox.accY(), PlayerBox.accZ());
-				normalMapEntities.add(new Entity(testPlanetModel, newVectors, 0, 0, 0, 1f, true, "testPlanetModel"));
-				System.out.println("Normal Map Entity Size: " + normalMapEntities.size());
-				tempEntityFloatStart[0] = (float)normalMapEntities.size()-1;
-			    tempEntities.add(tempEntityFloatStart);
-			    System.out.println("Temp Entitiy Value B: " +tempEntities.get(tempEntities.size()-1)[0].intValue());
+				if(fireTime<1){
+					tempEntityFloatStart = new Float[11];
+					tempEntityFloatStart[1] = 300f;
+					tempEntityFloatStart[0] = 0f;
+					tempRayStuff = player.accInfoForRayGun();
+					tempEntityFloatStart[2] = tempRayStuff[0];
+					tempEntityFloatStart[3] = tempRayStuff[1];
+					tempEntityFloatStart[4] = tempRayStuff[2];
+					tempEntityFloatStart[5] = player.accX();
+					tempEntityFloatStart[6] = player.accY();
+					tempEntityFloatStart[7] = player.accZ();
+
+
+					//tempEntityFloatStart[5] = PlayerBox.accX()+(5*tempEntityFloatStart[2]);
+					//tempEntityFloatStart[6] = PlayerBox.accY()+(5*tempEntityFloatStart[3]);
+					//tempEntityFloatStart[7] = PlayerBox.accZ()+(5*tempEntityFloatStart[4]);
+					//entities.get(playerEntityPosition);
+					//System.out.println("Button is down");
+					//normalMapEntities.add(new Entity(testPlanetModel, PlayerBox.accVectorPoints(), 0, 0, 0, 1f, true, "testPlanetModel"));
+					newVectors = new Vector3f(player.accX(), player.accY(), player.accZ());
+					normalMapEntities.add(new Entity(testPlanetModel, newVectors, 0, 0, 0, 1f, true, "testPlanetModel"));
+					//System.out.println("Normal Map Entity Size: " + normalMapEntities.size());
+					tempEntityFloatStart[0] = (float)normalMapEntities.size()-1;
+					tempEntities.add(tempEntityFloatStart);
+					rayBoxes.add(new Basic(new Vector3f(player.accX(), player.accY(), player.accZ()), new Vector3f(3, 3, 3), "ray"));
+			    	//System.out.println("Temp Entitiy Value B: " +tempEntities.get(tempEntities.size()-1)[0].intValue());
+			    	fireTime = defaultFireTime;
+				}
 
 			}
 			for(int y=0; y<tempEntities.size(); y++){
 				if(didThisRun == false){
 					tempEntities.get(y)[1] = tempEntities.get(y)[1].floatValue()-1;
-					System.out.println(y +"y: " + (tempEntities.get(y)[1].intValue()-1));
+					//System.out.println(y +"y: " + (tempEntities.get(y)[1].intValue()-1));
 					//normalMapEntities.get((int)tempEntities.get(y)[0].floatValue()).getX() + tempEntities.get(y)[5].floatValue();
 					//normalMapEntities.get((int)tempEntities.get(y)[0].floatValue()).setPosition(new Vector3f(PlayerBox.accX(), PlayerBox.accY(), PlayerBox.accZ()));
-				    
+
 					normalMapEntities.get((int)tempEntities.get(y)[0].floatValue()).setPosition(new Vector3f(normalMapEntities.get((int)tempEntities.get(y)[0].floatValue()).getX() + (tempEntities.get(y)[2].floatValue()*3), normalMapEntities.get((int)tempEntities.get(y)[0].floatValue()).getY() + (tempEntities.get(y)[3].floatValue()*3), normalMapEntities.get((int)tempEntities.get(y)[0].floatValue()).getZ() + (tempEntities.get(y)[4].floatValue()*3)));
+					rayBoxes.get(y).setBoxPos(normalMapEntities.get((int)tempEntities.get(y)[0].floatValue()).getPosition());
 					if(tempEntities.get(y)[1].intValue() < 1){
 						didThisRun=true;
-						System.out.println("Temp Entitiy Value A: " +tempEntities.get(y)[0].intValue());
-						System.out.println("B Normal Map Entity Size: " + normalMapEntities.size());
+						//System.out.println("Temp Entitiy Value A: " +tempEntities.get(y)[0].intValue());
+						//System.out.println("B Normal Map Entity Size: " + normalMapEntities.size());
 						normalMapEntities.remove(tempEntities.get(y)[0].intValue());
-						System.out.println("A Normal Map Entity Size: " + normalMapEntities.size());
-						System.out.println("Temp Entitiy Value Br: " +tempEntities.get(tempEntities.size()-1)[0].intValue());
+						//System.out.println("A Normal Map Entity Size: " + normalMapEntities.size());
+						//System.out.println("Temp Entitiy Value Br: " +tempEntities.get(tempEntities.size()-1)[0].intValue());
 						tempEntities.remove(y);
+						rayBoxes.remove(y);
 						//System.out.println("Temp Entitiy Value Ar: " +tempEntities.get(tempEntities.size()-1)[0].intValue());
 						for(int x=0; x<tempEntities.size(); x++){
-							System.out.println(x + "bx: " + tempEntities.get(x)[0].intValue());
+							//System.out.println(x + "bx: " + tempEntities.get(x)[0].intValue());
 							tempEntities.get(x)[0] = (float)tempEntities.get(x)[0].intValue()-1;
-							System.out.println(x + "ax: " + tempEntities.get(x)[0].intValue());
+							//System.out.println(x + "ax: " + tempEntities.get(x)[0].intValue());
 						}
 					}
 				}
@@ -665,58 +686,70 @@ public class MainGameLoop {
 
 			DisplayManager.updateDisplay();
 			//The Grow/Shrink checks
-			PlayerBox.setBoxPos(player.getPosition());
-			if((!PlayerBox.checkCollisions(BoulderBox)) && (!PlayerBox.checkCollisions(FloorBox))) {
-				player.move();
-				//System.out.println("1");
-			}else{
-				//needToGrowBack = true;
-			}
-			if((PlayerBox.checkCollisions(BoulderBox))) {
-				//System.out.println("2");
-				if(barrelModelSize > normalMapEntities.get(barrelModelPosition).getMinScale()){
-					barrelModelSize=barrelModelSize-0.01f;
-					time = 0;
-				}else{
-					normalMapEntities.get(barrelModelPosition).modIsShrinking(false);
+			for(int x=0; x<tempEntities.size(); x++){
+				//System.out.println("Box of Boulder: " + BoulderBox.accPositionPoints());
+				//System.out.println("Box of ray#" + x + ":" + rayBoxes.get(x).accPositionPoints());
+				//PlayerBox.setBoxPos(player.getPosition());
+				//rayBoxes.get(x).setBoxPos(new Vector3f(tempEntities.get(x)[5].floatValue(), tempEntities.get(x)[6].floatValue(), tempEntities.get(x)[7].floatValue()));
+				if ((!rayBoxes.get(x).checkCollisions(BoulderBox)) && (!rayBoxes.get(x).checkCollisions(FloorBox))) {
+					//player.move();
+					 System.out.println("P1");
+				} else {
+					// needToGrowBack = true;
 				}
-				if(normalMapEntities.get(barrelModelPosition).getIsShrinking()){
-					barrelModelSize = normalMapEntities.get(barrelModelPosition).getScale(); //ST
-					time = 0;
+				if ((rayBoxes.get(x).checkCollisions(BoulderBox))) {
+					normalMapEntities.get(barrelModelPosition).modIsShrinking(true);
+					System.out.println("P2");
+					if (barrelModelSize > normalMapEntities.get(barrelModelPosition).getMinScale()) {
+						barrelModelSize = barrelModelSize - 0.01f;
+						time = 0;
+					} else {
+						normalMapEntities.get(barrelModelPosition).modIsShrinking(false);
+					}
+					if (normalMapEntities.get(barrelModelPosition).getIsShrinking()) {
+						barrelModelSize = normalMapEntities.get(barrelModelPosition).getScale(); // ST
+						time = 0;
+					}
+					normalMapEntities.remove(tempEntities.get(x)[0].intValue());
+					tempEntities.remove(x);
+					rayBoxes.remove(x);
+					for(int y=0; y<tempEntities.size(); y++){
+						tempEntities.get(y)[0] = (float)tempEntities.get(y)[0].intValue()-1;
+					}
+				}else if ((rayBoxes.get(x).checkCollisions(FloorBox))) {
+					//player.move(rayBoxes.get(x).checkFaceCollisions(FloorBox));
+					 System.out.println("P3");
 				}
+				// System.out.println("Character Points: " +
+				// rayBoxes.get(x).accPositionPoints());
+				
 			}
-			if((PlayerBox.checkCollisions(FloorBox))) {
-				player.move(PlayerBox.checkFaceCollisions(FloorBox));
-				//System.out.println("3");
-			}
-			//System.out.println("Character Points: " + PlayerBox.accPositionPoints());
-
-			if(normalMapEntities.get(barrelModelPosition).getIsShrinking() == true){
-			    barrelModelSize = normalMapEntities.get(barrelModelPosition).getScale(); //ST
+			if (normalMapEntities.get(barrelModelPosition).getIsShrinking() == true) {
+				barrelModelSize = normalMapEntities.get(barrelModelPosition).getScale(); // ST
 				time = 0;
-				if(barrelModelSize > normalMapEntities.get(barrelModelPosition).getMinScale()){
-					barrelModelSize=barrelModelSize-0.01f;
-				}else{
+				if (barrelModelSize > normalMapEntities.get(barrelModelPosition).getMinScale()) {
+					barrelModelSize = barrelModelSize - 0.01f;
+				} else {
 					normalMapEntities.get(barrelModelPosition).modIsShrinking(false);
 					needToGrowBack = true;
 				}
-			}else{
+			} else {
 				needToGrowBack = true;
 			}
 
-			if(needToGrowBack==true){
-				if(time < 500){
+			if (needToGrowBack == true) {
+				if (time < 200) {
 					time++;
-					//System.out.println(time);
-				}else{
-					if(barrelModelSize < normalMapEntities.get(barrelModelPosition).getMaxScale()){
-						barrelModelSize=barrelModelSize+0.01f;
-					}else{
-						//normalMapEntities.get(barrelModelPosition).modIsShrinking();
+					System.out.println(time);
+				} else {
+					if (barrelModelSize < normalMapEntities.get(barrelModelPosition).getMaxScale()) {
+						barrelModelSize = barrelModelSize + 0.01f;
+					} else {
+						// normalMapEntities.get(barrelModelPosition).modIsShrinking();
 						time = 0;
 						needToGrowBack = false;
+						normalMapEntities.get(barrelModelPosition).modIsShrinking(false);
 					}
-
 
 				}
 
