@@ -3,6 +3,7 @@ package engineTester;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
@@ -519,14 +520,21 @@ public class MainGameLoop {
 
 		//normalMapEntities.add(new Entity(structure3TexModel, new Vector3f(0, 0, 0), 0, 0, 0, 1f, true, "structure3Model"));
 		normalMapEntities.add(new Entity(barrelModel, new Vector3f(barrelX, barrelY, barrelZ), 0, 0, 0, 1f, true, "barrelModel"));
-		Basic BoulderBox = new Basic(new Vector3f(barrelX, barrelY, barrelZ), new Vector3f(5, 13, 5), "Boulder");
-
-
-
-		int barrelModelPosition = normalMapEntities.size()-1; //ST
-		float barrelModelSize = normalMapEntities.get(barrelModelPosition).getScale(); //ST
-		int time=0;
-		boolean needToGrowBack = false;
+		Basic barrelBox = new Basic(new Vector3f(barrelX, barrelY, barrelZ), new Vector3f(5, 13, 5), "barrelBox");
+		ArrayList<Integer> barrelArrayPositions = new ArrayList<Integer>();
+		ArrayList<Basic> barrelBoxes = new ArrayList<Basic>();
+		ArrayList<Float> barrelModelSizes = new ArrayList<Float>();
+		ArrayList<Integer> barrelTimes = new ArrayList<Integer>();
+		ArrayList<Boolean> barrelGrows = new ArrayList<Boolean>();
+		
+		barrelArrayPositions.add(normalMapEntities.size()-1); //HERE
+		barrelBoxes.add(barrelBox);
+		barrelModelSizes.add(normalMapEntities.get(barrelArrayPositions.get(0)).getScale());
+		barrelTimes.add(0);
+		barrelGrows.add(false);
+		
+		
+	
 
 		normalMapEntities.add(new Entity(testPlanetModel, new Vector3f(player.accX(), player.accY(), player.accZ()), 0, 0, 0, .001f, true, "testPlanetModel"));
 		//normalMapEntities.add(new Entity(structureModel, new Vector3f(90f, 10, -100f), 0, 0, 0, 10f, true, "structureModel"));
@@ -550,7 +558,43 @@ public class MainGameLoop {
 	    boolean didThisRun = false;
 	    int defaultFireTime = 25;
 	    int fireTime = 0;
+	    int timeInGame = 0;
+	    float sizeTemp;
+	    
+	    Random rand = new Random();
+	    int xx = 0;
+	    int yy = 0;
+	    int zz = 0;
 		while (!Display.isCloseRequested()) {
+			timeInGame++;
+			if(timeInGame%100 == 0){
+				System.out.println("add");
+				xx = rand.nextInt(500);
+				if(rand.nextBoolean() == true){
+					xx=xx*-1;
+				}
+				yy = rand.nextInt(500);
+				if(rand.nextBoolean() == true){
+					yy=yy*-1;
+				}
+				zz = rand.nextInt(500);
+				if(rand.nextBoolean() == true){
+					zz=zz*-1;
+				}
+				normalMapEntities.add(new Entity(barrelModel, new Vector3f(xx, yy, zz), 0, 0, 0, 1f, true, "barrelModel"));
+				barrelBox = new Basic(new Vector3f(xx, yy, zz), new Vector3f(5, 13, 5), "barrelBox");
+				//barrelArrayPositions.add(normalMapEntities.size()-1); //HERE
+				barrelArrayPositions.add(normalMapEntities.size()-1);
+				barrelBoxes.add(barrelBox);
+				barrelModelSizes.add(normalMapEntities.get(barrelArrayPositions.get(0)).getScale());
+				barrelTimes.add(0);
+				barrelGrows.add(false);
+				System.out.println("barrelArrayPositions Size ADDED:" + barrelArrayPositions.size());
+				System.out.println("barrelModelSizes Size ADDED:" + barrelModelSizes.size());
+				System.out.println("NormalMapEntities Size ADDED:" + normalMapEntities.size());
+				System.out.println("RayBoxes Size :" + rayBoxes.size());
+			}
+			//System.out.println("Time: " + timeInGame);
 			if(camera.getType() != Camera.FREE_ROAM)player.move();
 			camera.move();
 			picker.update();
@@ -613,6 +657,11 @@ public class MainGameLoop {
 					rayBoxes.get(y).setBoxPos(normalMapEntities.get((int)tempEntities.get(y)[0].floatValue()).getPosition());
 					if(tempEntities.get(y)[1].intValue() < 1){
 						didThisRun=true;
+						for(int x=0; x<barrelArrayPositions.size(); x++){ //RHERE
+							if(barrelArrayPositions.get(x) > tempEntities.get(y)[0].intValue()){
+								barrelArrayPositions.set(x, barrelArrayPositions.get(x)-1);	
+							}
+						}
 						//System.out.println("Temp Entitiy Value A: " +tempEntities.get(y)[0].intValue());
 						//System.out.println("B Normal Map Entity Size: " + normalMapEntities.size());
 						normalMapEntities.remove(tempEntities.get(y)[0].intValue());
@@ -626,6 +675,7 @@ public class MainGameLoop {
 							tempEntities.get(x)[0] = (float)tempEntities.get(x)[0].intValue()-1;
 							//System.out.println(x + "ax: " + tempEntities.get(x)[0].intValue());
 						}
+						
 					}
 				}
 
@@ -659,9 +709,25 @@ public class MainGameLoop {
 
 
 
-
-			normalMapEntities.get(barrelModelPosition).setScale(barrelModelSize);
-			normalMapEntities.get(barrelModelPosition).setPosition(new Vector3f(barrelX,barrelModelSize*6.03f+ barrelY, barrelZ));
+			for(int i=0; i<barrelArrayPositions.size(); i++){ //LAST 
+				System.out.println("THIS I: " + i);
+				System.out.println("barrelArrayPositions Size:" + barrelArrayPositions.size());
+				System.out.println("barrelModelSizes Size:" + barrelModelSizes.size());
+				System.out.println("NormalMapEntities Size:" + normalMapEntities.size());
+				System.out.println("barralArrayPositions.get(1) = " + barrelArrayPositions.get(i));
+				/**
+				if(i > barrelModelSizes.size()){
+					i = barrelModelSizes.size()-1;
+				}
+				*/
+				/**
+				if(barrelArrayPositions.get(i) > normalMapEntities.size()){
+					barrelArrayPositions.set(i, normalMapEntities.size()-1);
+				}
+				*/
+				normalMapEntities.get(barrelArrayPositions.get(i)).setScale(barrelModelSizes.get(i));
+				normalMapEntities.get(barrelArrayPositions.get(i)).setPosition(new Vector3f(normalMapEntities.get(barrelArrayPositions.get(i)).getX(),barrelModelSizes.get(i)*6.03f+ normalMapEntities.get(barrelArrayPositions.get(i)).getMaxY(), normalMapEntities.get(barrelArrayPositions.get(i)).getZ()));
+			}
 
 			//ST ABOVE
 			//render reflection teture
@@ -689,74 +755,103 @@ public class MainGameLoop {
 			DisplayManager.updateDisplay();
 			//The Grow/Shrink checks
 			for(int x=0; x<tempEntities.size(); x++){
-				//System.out.println("Box of Boulder: " + BoulderBox.accPositionPoints());
-				//System.out.println("Box of ray#" + x + ":" + rayBoxes.get(x).accPositionPoints());
-				//PlayerBox.setBoxPos(player.getPosition());
-				//rayBoxes.get(x).setBoxPos(new Vector3f(tempEntities.get(x)[5].floatValue(), tempEntities.get(x)[6].floatValue(), tempEntities.get(x)[7].floatValue()));
-				if ((!rayBoxes.get(x).checkCollisions(BoulderBox)) && (!rayBoxes.get(x).checkCollisions(FloorBox))) {
-					//player.move();
-					 System.out.println("P1");
-				} else {
-					// needToGrowBack = true;
+				System.out.println("x: " + x);
+				for(int i=0; i<barrelBoxes.size(); i++){
+					if(tempEntities.size()!=0){
+						if(x>=rayBoxes.size()){
+							x = rayBoxes.size()-1;
+						}
+						System.out.println("i1: "+ i);
+						//System.out.println("Box of Boulder: " + barrelBoxes.get(i).accPositionPoints());
+						//System.out.println("Box of ray#" + x + ":" + rayBoxes.get(x).accPositionPoints());
+						//PlayerBox.setBoxPos(player.getPosition());
+						//rayBoxes.get(x).setBoxPos(new Vector3f(tempEntities.get(x)[5].floatValue(), tempEntities.get(x)[6].floatValue(), tempEntities.get(x)[7].floatValue()));
+						System.out.println("barralArrayPositions.get(1) = " + barrelArrayPositions.get(i));
+						if ((!rayBoxes.get(x).checkCollisions(barrelBoxes.get(i))) && (!rayBoxes.get(x).checkCollisions(FloorBox))) {
+							//player.move();
+							System.out.println("P1");
+						} else {
+							// needToGrowBack = true;
+						}
+						if ((rayBoxes.get(x).checkCollisions(barrelBoxes.get(i)))) {
+							normalMapEntities.get(barrelArrayPositions.get(i)).modIsShrinking(true);
+							System.out.println("P2----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+							if (barrelModelSizes.get(i) > normalMapEntities.get(barrelArrayPositions.get(i)).getMinScale()) {
+								barrelModelSizes.set(i, barrelModelSizes.get(i) - 0.01f);
+								barrelTimes.set(i, 0);
+							} else {
+								normalMapEntities.get(barrelArrayPositions.get(i)).modIsShrinking(false);
+							}
+							if (normalMapEntities.get(barrelArrayPositions.get(i)).getIsShrinking()) {
+								barrelModelSizes.set(i,normalMapEntities.get(barrelArrayPositions.get(i)).getScale()); // ST
+								barrelTimes.set(i, 0);
+							}
+							for(int y=0; y<barrelArrayPositions.size(); y++){ //RHERE
+								if(barrelArrayPositions.get(y) > tempEntities.get(x)[0].intValue()){
+									barrelArrayPositions.set(y, barrelArrayPositions.get(y)-1);	
+								}
+							}
+							normalMapEntities.remove(tempEntities.get(x)[0].intValue());
+							tempEntities.remove(x);
+							rayBoxes.remove(x);
+							for(int y=0; y<tempEntities.size(); y++){
+								tempEntities.get(y)[0] = (float)tempEntities.get(y)[0].intValue()-1;
+							}
+						}else if ((rayBoxes.get(x).checkCollisions(FloorBox))) {
+							//player.move(rayBoxes.get(x).checkFaceCollisions(FloorBox));
+							System.out.println("P3");
+						}
+						// System.out.println("Character Points: " +
+						// rayBoxes.get(x).accPositionPoints());
+					}
+
 				}
-				if ((rayBoxes.get(x).checkCollisions(BoulderBox))) {
-					normalMapEntities.get(barrelModelPosition).modIsShrinking(true);
-					System.out.println("P2");
-					if (barrelModelSize > normalMapEntities.get(barrelModelPosition).getMinScale()) {
-						barrelModelSize = barrelModelSize - 0.01f;
-						time = 0;
+			}
+			for(int i=0; i<barrelArrayPositions.size(); i++){ //LAST MESS
+				System.out.println("i2: "+ i);
+				System.out.println("NORMAL MAP1: " + normalMapEntities.size());
+				
+				System.out.println("barralArrayPositions.get(1) = " + barrelArrayPositions.get(i));
+				System.out.println("NORMAL MAP2: " + normalMapEntities.size());
+				if (normalMapEntities.get(barrelArrayPositions.get(i)).getIsShrinking() == true) {
+	                System.out.println("Is Shrinking");
+					barrelModelSizes.set(i,normalMapEntities.get(barrelArrayPositions.get(i)).getScale()); // ST
+					barrelTimes.set(i, 0);
+					if (barrelModelSizes.get(i) > normalMapEntities.get(barrelArrayPositions.get(i)).getMinScale()) {
+						sizeTemp = barrelModelSizes.get(i) - 0.01f;
+						System.out.println(sizeTemp);
+						barrelModelSizes.set(i, sizeTemp);
 					} else {
-						normalMapEntities.get(barrelModelPosition).modIsShrinking(false);
+						normalMapEntities.get(barrelArrayPositions.get(i)).modIsShrinking(false);
+						barrelGrows.set(i,true);
 					}
-					if (normalMapEntities.get(barrelModelPosition).getIsShrinking()) {
-						barrelModelSize = normalMapEntities.get(barrelModelPosition).getScale(); // ST
-						time = 0;
-					}
-					normalMapEntities.remove(tempEntities.get(x)[0].intValue());
-					tempEntities.remove(x);
-					rayBoxes.remove(x);
-					for(int y=0; y<tempEntities.size(); y++){
-						tempEntities.get(y)[0] = (float)tempEntities.get(y)[0].intValue()-1;
-					}
-				}else if ((rayBoxes.get(x).checkCollisions(FloorBox))) {
-					//player.move(rayBoxes.get(x).checkFaceCollisions(FloorBox));
-					 System.out.println("P3");
+					System.out.println("BarrelModelSize: " + barrelModelSizes.get(i));
+					System.out.println("normalMapEntitiesBarrelSize: " + normalMapEntities.get(barrelArrayPositions.get(i)).getScale());
+				} else {
+					barrelGrows.set(i,true);
 				}
-				// System.out.println("Character Points: " +
-				// rayBoxes.get(x).accPositionPoints());
+
+				if (barrelGrows.get(i) == true) {
+					if (barrelTimes.get(i) < 200) {
+						barrelTimes.set(i,barrelTimes.get(i)+1);
+						System.out.println(barrelTimes.get(i));
+					} else {
+						if (barrelModelSizes.get(i) < normalMapEntities.get(barrelArrayPositions.get(i)).getMaxScale()) {
+							barrelModelSizes.set(i,barrelModelSizes.get(i) + 0.01f);
+						} else {
+							// normalMapEntities.get(barrelModelPosition).modIsShrinking();
+							barrelTimes.set(i,0);
+							barrelGrows.set(i,false);
+							normalMapEntities.get(barrelArrayPositions.get(i)).modIsShrinking(false);
+						}
+
+					}
+				}
+				normalMapEntities.get(barrelArrayPositions.get(i)).setScale(barrelModelSizes.get(i));
+
 				
 			}
-			if (normalMapEntities.get(barrelModelPosition).getIsShrinking() == true) {
-				barrelModelSize = normalMapEntities.get(barrelModelPosition).getScale(); // ST
-				time = 0;
-				if (barrelModelSize > normalMapEntities.get(barrelModelPosition).getMinScale()) {
-					barrelModelSize = barrelModelSize - 0.01f;
-				} else {
-					normalMapEntities.get(barrelModelPosition).modIsShrinking(false);
-					needToGrowBack = true;
-				}
-			} else {
-				needToGrowBack = true;
-			}
-
-			if (needToGrowBack == true) {
-				if (time < 200) {
-					time++;
-					System.out.println(time);
-				} else {
-					if (barrelModelSize < normalMapEntities.get(barrelModelPosition).getMaxScale()) {
-						barrelModelSize = barrelModelSize + 0.01f;
-					} else {
-						// normalMapEntities.get(barrelModelPosition).modIsShrinking();
-						time = 0;
-						needToGrowBack = false;
-						normalMapEntities.get(barrelModelPosition).modIsShrinking(false);
-					}
-
-				}
-
-			}
-
+			
 
 
 		}
@@ -768,7 +863,6 @@ public class MainGameLoop {
 		renderer.cleanUp();
 		loader.cleanUp();
 		DisplayManager.closeDisplay();
-
 
 
 
