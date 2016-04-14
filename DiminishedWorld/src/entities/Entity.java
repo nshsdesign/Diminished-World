@@ -16,6 +16,7 @@ public class Entity {
 	private boolean shrinkOrGrowNow; //ST
 	private boolean canShrink; //ST
 	private String name; //ST may not be needed
+	private float maxY;
 	
 	private int textureIndex = 0;
 
@@ -29,10 +30,11 @@ public class Entity {
 		this.scale = scale;
 		this.maxScale = scale;
 		this.minScale = scale/80f; //ST
-		this.isShrinking = true; //ST 
+		this.isShrinking = false; //ST 
 		this.shrinkOrGrowNow = false; //ST
 		this.canShrink = isAbleToShrink; //ST
 		this.name = name; //ST
+		maxY = position.y;
 	}
 	
 	public Entity(TexturedModel model, int index, Vector3f position, float rotX, float rotY, float rotZ,
@@ -46,10 +48,11 @@ public class Entity {
 		this.scale = scale;
 		this.maxScale = scale;
 		this.minScale = scale/80f; //ST
-		this.isShrinking = true; //ST 
+		this.isShrinking = false; //ST 
 		this.shrinkOrGrowNow = false; //ST
 		this.canShrink = isAbleToShrink; //ST
 		this.name = name; //ST
+		maxY = position.y;
 	}
 	
 	public Entity(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ,
@@ -62,10 +65,11 @@ public class Entity {
 		this.scale = scale;
 		this.maxScale = scale;
 		this.minScale = scale/minScaleAmount; //ST
-		this.isShrinking = true; //ST 
+		this.isShrinking = false; //ST 
 		this.shrinkOrGrowNow = false; //ST
 		this.canShrink = isAbleToShrink; //ST
 		this.name = name; //ST
+		maxY = position.y;
 	}
 	
 	public Entity(TexturedModel model, int index, Vector3f position, float rotX, float rotY, float rotZ,
@@ -79,10 +83,11 @@ public class Entity {
 		this.scale = scale;
 		this.maxScale = scale;
 		this.minScale = scale/minScaleAmount; //ST
-		this.isShrinking = true; //ST 
+		this.isShrinking = false; //ST 
 		this.shrinkOrGrowNow = false; //ST
 		this.canShrink = isAbleToShrink; //ST
 		this.name = name; //ST
+		maxY = position.y;
 	}
 	
 	public float getTextureXOffset(){
@@ -129,6 +134,10 @@ public class Entity {
 	
 	public float getY(){
 		return this.position.y;
+	}
+	
+	public float getMaxY(){
+		return maxY;
 	}
 	
 	public float getZ(){
