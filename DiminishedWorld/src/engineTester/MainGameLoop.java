@@ -397,9 +397,9 @@ public class MainGameLoop {
 
 
 		//**********Normal Map Setup************************
-		TexturedModel barrelModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("barrel", loader),
-				new ModelTexture(loader.loadTexture("barrel")));
-		barrelModel.getTexture().setNormalMap(loader.loadTexture("barrelNormal"));
+		TexturedModel barrelModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("mite_1", loader),
+				new ModelTexture(loader.loadTexture("mite_Uv")));
+		barrelModel.getTexture().setNormalMap(loader.loadTexture("mite_Uv"));
 		barrelModel.getTexture().setShineDamper(10);
 		barrelModel.getTexture().setReflectivity(0.5f);
 
@@ -484,6 +484,20 @@ public class MainGameLoop {
 		Player player = new Player(camera, playerTexModel, new Vector3f(100, 0, 0), 0, 0, 0, 1);
 		entities.add(player);
 		int playerEntityPosition = entities.size() - 1;
+		
+		//**********Mite Setup************************
+		/**
+		RawModel miteRawModel = OBJFileLoader.loadOBJ("mite_1", loader);
+		ModelTexture miteTex = new ModelTexture(loader.loadTexture("mite_Uv"));
+		TexturedModel miteModel = new TexturedModel(miteRawModel, miteTex);
+		*/
+		
+		TexturedModel miteModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("mite_1", loader),
+				new ModelTexture(loader.loadTexture("mite_Uv")));
+		miteModel.getTexture().setNormalMap(loader.loadTexture("mite_Uv"));
+		//miteModel.getTexture().setShineDamper(10);
+		//miteModel.getTexture().setReflectivity(0.5f);
+		
 
 		Basic PlayerBox = new Basic(new Vector3f(75, 10, 0), new Vector3f(5, 10, 5), "Player");
 
@@ -513,25 +527,36 @@ public class MainGameLoop {
 		//guiTextures.remove(guiTextures.get(guiSanityTexturePosition-2));
 
 		//**********Barrel Tests************************
-		int barrelX = 250;
-		int barrelY = 25;
-		int barrelZ= 250;
+		int miteX = 250;
+		int miteY = 25;
+		int miteZ= 250;
 
 
 		//normalMapEntities.add(new Entity(structure3TexModel, new Vector3f(0, 0, 0), 0, 0, 0, 1f, true, "structure3Model"));
-		normalMapEntities.add(new Entity(barrelModel, new Vector3f(barrelX, barrelY, barrelZ), 0, 0, 0, 1f, true, "barrelModel"));
-		Basic barrelBox = new Basic(new Vector3f(barrelX, barrelY, barrelZ), new Vector3f(5, 13, 5), "barrelBox");
-		ArrayList<Integer> barrelArrayPositions = new ArrayList<Integer>();
-		ArrayList<Basic> barrelBoxes = new ArrayList<Basic>();
-		ArrayList<Float> barrelModelSizes = new ArrayList<Float>();
-		ArrayList<Integer> barrelTimes = new ArrayList<Integer>();
-		ArrayList<Boolean> barrelGrows = new ArrayList<Boolean>();
+		normalMapEntities.add(new Entity(miteModel, new Vector3f(miteX, miteY, miteZ), 0, 0, 0, 1f, true, "miteModel"));
+		Basic miteBox = new Basic(new Vector3f(miteX, miteY, miteZ), new Vector3f(5, 13, 5), "miteBox");
+		ArrayList<Integer> miteArrayPositions = new ArrayList<Integer>();
+		ArrayList<Basic> miteBoxes = new ArrayList<Basic>();
+		ArrayList<Float> miteModelSizes = new ArrayList<Float>();
+		ArrayList<Integer> miteTimes = new ArrayList<Integer>();
+		ArrayList<Boolean> miteGrows = new ArrayList<Boolean>();
+		ArrayList<Float[]> miteMovement = new ArrayList<Float[]>();
+		Float[] tempFloatMove = new Float[3];
+		tempFloatMove[0] = 0f;
+		tempFloatMove[1] = 1f;
+		tempFloatMove[2] = 2f;
 		
-		barrelArrayPositions.add(normalMapEntities.size()-1); //HERE
-		barrelBoxes.add(barrelBox);
-		barrelModelSizes.add(normalMapEntities.get(barrelArrayPositions.get(0)).getScale());
-		barrelTimes.add(0);
-		barrelGrows.add(false);
+		
+		miteArrayPositions.add(normalMapEntities.size()-1); //HERE
+		miteBoxes.add(miteBox);
+		miteModelSizes.add(normalMapEntities.get(miteArrayPositions.get(0)).getScale());
+		miteTimes.add(0);
+		miteGrows.add(false);
+		miteMovement.add(tempFloatMove);
+		
+		
+		//miteMovement.add(tempFloatMove);
+		
 		
 		
 	
@@ -568,7 +593,6 @@ public class MainGameLoop {
 		while (!Display.isCloseRequested()) {
 			timeInGame++;
 			if(timeInGame%100 == 0){
-				System.out.println("add");
 				xx = rand.nextInt(500);
 				if(rand.nextBoolean() == true){
 					xx=xx*-1;
@@ -581,18 +605,14 @@ public class MainGameLoop {
 				if(rand.nextBoolean() == true){
 					zz=zz*-1;
 				}
-				normalMapEntities.add(new Entity(barrelModel, new Vector3f(xx, yy, zz), 0, 0, 0, 1f, true, "barrelModel"));
-				barrelBox = new Basic(new Vector3f(xx, yy, zz), new Vector3f(5, 13, 5), "barrelBox");
-				//barrelArrayPositions.add(normalMapEntities.size()-1); //HERE
-				barrelArrayPositions.add(normalMapEntities.size()-1);
-				barrelBoxes.add(barrelBox);
-				barrelModelSizes.add(normalMapEntities.get(barrelArrayPositions.get(0)).getScale());
-				barrelTimes.add(0);
-				barrelGrows.add(false);
-				System.out.println("barrelArrayPositions Size ADDED:" + barrelArrayPositions.size());
-				System.out.println("barrelModelSizes Size ADDED:" + barrelModelSizes.size());
-				System.out.println("NormalMapEntities Size ADDED:" + normalMapEntities.size());
-				System.out.println("RayBoxes Size :" + rayBoxes.size());
+				normalMapEntities.add(new Entity(miteModel, new Vector3f(xx, yy, zz), 0, 0, 0, 1f, true, "miteModel"));
+				miteBox = new Basic(new Vector3f(xx, yy, zz), new Vector3f(5, 13, 5), "miteBox");
+				//miteArrayPositions.add(normalMapEntities.size()-1); //HERE
+				miteArrayPositions.add(normalMapEntities.size()-1);
+				miteBoxes.add(miteBox);
+				miteModelSizes.add(normalMapEntities.get(miteArrayPositions.get(0)).getScale());
+				miteTimes.add(0);
+				miteGrows.add(false);
 			}
 			//System.out.println("Time: " + timeInGame);
 			if(camera.getType() != Camera.FREE_ROAM)player.move();
@@ -657,9 +677,9 @@ public class MainGameLoop {
 					rayBoxes.get(y).setBoxPos(normalMapEntities.get((int)tempEntities.get(y)[0].floatValue()).getPosition());
 					if(tempEntities.get(y)[1].intValue() < 1){
 						didThisRun=true;
-						for(int x=0; x<barrelArrayPositions.size(); x++){ //RHERE
-							if(barrelArrayPositions.get(x) > tempEntities.get(y)[0].intValue()){
-								barrelArrayPositions.set(x, barrelArrayPositions.get(x)-1);	
+						for(int x=0; x<miteArrayPositions.size(); x++){ //RHERE
+							if(miteArrayPositions.get(x) > tempEntities.get(y)[0].intValue()){
+								miteArrayPositions.set(x, miteArrayPositions.get(x)-1);	
 							}
 						}
 						//System.out.println("Temp Entitiy Value A: " +tempEntities.get(y)[0].intValue());
@@ -682,23 +702,23 @@ public class MainGameLoop {
 			}
 			didThisRun = false;
 			/**
-			if(normalMapEntities.get(barrelModelPosition).getIsShrinking() == true){
-			    barrelModelSize = normalMapEntities.get(barrelModelPosition).getScale(); //ST
+			if(normalMapEntities.get(miteModelPosition).getIsShrinking() == true){
+			    miteModelSize = normalMapEntities.get(miteModelPosition).getScale(); //ST
 				time = 0;
-				if(barrelModelSize > normalMapEntities.get(barrelModelPosition).getMinScale()){
-					barrelModelSize=barrelModelSize-0.01f;
+				if(miteModelSize > normalMapEntities.get(miteModelPosition).getMinScale()){
+					miteModelSize=miteModelSize-0.01f;
 				}else{
-					normalMapEntities.get(barrelModelPosition).modIsShrinking();
+					normalMapEntities.get(miteModelPosition).modIsShrinking();
 				}
 			}else{
 				if(time < 1000){
 					time++;
 					System.out.println(time);
 				}else{
-					if(barrelModelSize < normalMapEntities.get(barrelModelPosition).getMaxScale()){
-						barrelModelSize=barrelModelSize+0.01f;
+					if(miteModelSize < normalMapEntities.get(miteModelPosition).getMaxScale()){
+						miteModelSize=miteModelSize+0.01f;
 					}else{
-						normalMapEntities.get(barrelModelPosition).modIsShrinking();
+						normalMapEntities.get(miteModelPosition).modIsShrinking();
 						time = 0;
 					}
 
@@ -709,24 +729,20 @@ public class MainGameLoop {
 
 
 
-			for(int i=0; i<barrelArrayPositions.size(); i++){ //LAST 
-				System.out.println("THIS I: " + i);
-				System.out.println("barrelArrayPositions Size:" + barrelArrayPositions.size());
-				System.out.println("barrelModelSizes Size:" + barrelModelSizes.size());
-				System.out.println("NormalMapEntities Size:" + normalMapEntities.size());
-				System.out.println("barralArrayPositions.get(1) = " + barrelArrayPositions.get(i));
+			for(int i=0; i<miteArrayPositions.size(); i++){ //LAST 
+				
 				/**
-				if(i > barrelModelSizes.size()){
-					i = barrelModelSizes.size()-1;
+				if(i > miteModelSizes.size()){
+					i = miteModelSizes.size()-1;
 				}
 				*/
 				/**
-				if(barrelArrayPositions.get(i) > normalMapEntities.size()){
-					barrelArrayPositions.set(i, normalMapEntities.size()-1);
+				if(miteArrayPositions.get(i) > normalMapEntities.size()){
+					miteArrayPositions.set(i, normalMapEntities.size()-1);
 				}
 				*/
-				normalMapEntities.get(barrelArrayPositions.get(i)).setScale(barrelModelSizes.get(i));
-				normalMapEntities.get(barrelArrayPositions.get(i)).setPosition(new Vector3f(normalMapEntities.get(barrelArrayPositions.get(i)).getX(),barrelModelSizes.get(i)*6.03f+ normalMapEntities.get(barrelArrayPositions.get(i)).getMaxY(), normalMapEntities.get(barrelArrayPositions.get(i)).getZ()));
+				normalMapEntities.get(miteArrayPositions.get(i)).setScale(miteModelSizes.get(i));
+				normalMapEntities.get(miteArrayPositions.get(i)).setPosition(new Vector3f(normalMapEntities.get(miteArrayPositions.get(i)).getX(),miteModelSizes.get(i)*6.03f+ normalMapEntities.get(miteArrayPositions.get(i)).getMaxY(), normalMapEntities.get(miteArrayPositions.get(i)).getZ()));
 			}
 
 			//ST ABOVE
@@ -755,40 +771,36 @@ public class MainGameLoop {
 			DisplayManager.updateDisplay();
 			//The Grow/Shrink checks
 			for(int x=0; x<tempEntities.size(); x++){
-				System.out.println("x: " + x);
-				for(int i=0; i<barrelBoxes.size(); i++){
+				for(int i=0; i<miteBoxes.size(); i++){
 					if(tempEntities.size()!=0){
 						if(x>=rayBoxes.size()){
 							x = rayBoxes.size()-1;
 						}
-						System.out.println("i1: "+ i);
-						//System.out.println("Box of Boulder: " + barrelBoxes.get(i).accPositionPoints());
+						//System.out.println("Box of Boulder: " + miteBoxes.get(i).accPositionPoints());
 						//System.out.println("Box of ray#" + x + ":" + rayBoxes.get(x).accPositionPoints());
 						//PlayerBox.setBoxPos(player.getPosition());
 						//rayBoxes.get(x).setBoxPos(new Vector3f(tempEntities.get(x)[5].floatValue(), tempEntities.get(x)[6].floatValue(), tempEntities.get(x)[7].floatValue()));
-						System.out.println("barralArrayPositions.get(1) = " + barrelArrayPositions.get(i));
-						if ((!rayBoxes.get(x).checkCollisions(barrelBoxes.get(i))) && (!rayBoxes.get(x).checkCollisions(FloorBox))) {
+						if ((!rayBoxes.get(x).checkCollisions(miteBoxes.get(i))) && (!rayBoxes.get(x).checkCollisions(FloorBox))) {
 							//player.move();
-							System.out.println("P1");
 						} else {
 							// needToGrowBack = true;
 						}
-						if ((rayBoxes.get(x).checkCollisions(barrelBoxes.get(i)))) {
-							normalMapEntities.get(barrelArrayPositions.get(i)).modIsShrinking(true);
-							System.out.println("P2----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
-							if (barrelModelSizes.get(i) > normalMapEntities.get(barrelArrayPositions.get(i)).getMinScale()) {
-								barrelModelSizes.set(i, barrelModelSizes.get(i) - 0.01f);
-								barrelTimes.set(i, 0);
+						if ((rayBoxes.get(x).checkCollisions(miteBoxes.get(i)))) {
+							normalMapEntities.get(miteArrayPositions.get(i)).modIsShrinking(true);
+							
+							if (miteModelSizes.get(i) > normalMapEntities.get(miteArrayPositions.get(i)).getMinScale()) {
+								miteModelSizes.set(i, miteModelSizes.get(i) - 0.01f);
+								miteTimes.set(i, 0);
 							} else {
-								normalMapEntities.get(barrelArrayPositions.get(i)).modIsShrinking(false);
+								normalMapEntities.get(miteArrayPositions.get(i)).modIsShrinking(false);
 							}
-							if (normalMapEntities.get(barrelArrayPositions.get(i)).getIsShrinking()) {
-								barrelModelSizes.set(i,normalMapEntities.get(barrelArrayPositions.get(i)).getScale()); // ST
-								barrelTimes.set(i, 0);
+							if (normalMapEntities.get(miteArrayPositions.get(i)).getIsShrinking()) {
+								miteModelSizes.set(i,normalMapEntities.get(miteArrayPositions.get(i)).getScale()); // ST
+								miteTimes.set(i, 0);
 							}
-							for(int y=0; y<barrelArrayPositions.size(); y++){ //RHERE
-								if(barrelArrayPositions.get(y) > tempEntities.get(x)[0].intValue()){
-									barrelArrayPositions.set(y, barrelArrayPositions.get(y)-1);	
+							for(int y=0; y<miteArrayPositions.size(); y++){ //RHERE
+								if(miteArrayPositions.get(y) > tempEntities.get(x)[0].intValue()){
+									miteArrayPositions.set(y, miteArrayPositions.get(y)-1);	
 								}
 							}
 							normalMapEntities.remove(tempEntities.get(x)[0].intValue());
@@ -799,7 +811,6 @@ public class MainGameLoop {
 							}
 						}else if ((rayBoxes.get(x).checkCollisions(FloorBox))) {
 							//player.move(rayBoxes.get(x).checkFaceCollisions(FloorBox));
-							System.out.println("P3");
 						}
 						// System.out.println("Character Points: " +
 						// rayBoxes.get(x).accPositionPoints());
@@ -807,47 +818,38 @@ public class MainGameLoop {
 
 				}
 			}
-			for(int i=0; i<barrelArrayPositions.size(); i++){ //LAST MESS
-				System.out.println("i2: "+ i);
-				System.out.println("NORMAL MAP1: " + normalMapEntities.size());
-				
-				System.out.println("barralArrayPositions.get(1) = " + barrelArrayPositions.get(i));
-				System.out.println("NORMAL MAP2: " + normalMapEntities.size());
-				if (normalMapEntities.get(barrelArrayPositions.get(i)).getIsShrinking() == true) {
-	                System.out.println("Is Shrinking");
-					barrelModelSizes.set(i,normalMapEntities.get(barrelArrayPositions.get(i)).getScale()); // ST
-					barrelTimes.set(i, 0);
-					if (barrelModelSizes.get(i) > normalMapEntities.get(barrelArrayPositions.get(i)).getMinScale()) {
-						sizeTemp = barrelModelSizes.get(i) - 0.01f;
-						System.out.println(sizeTemp);
-						barrelModelSizes.set(i, sizeTemp);
+			
+			for(int i=0; i<miteArrayPositions.size(); i++){ //LAST MESS
+				if (normalMapEntities.get(miteArrayPositions.get(i)).getIsShrinking() == true) {
+					miteModelSizes.set(i,normalMapEntities.get(miteArrayPositions.get(i)).getScale()); // ST
+					miteTimes.set(i, 0);
+					if (miteModelSizes.get(i) > normalMapEntities.get(miteArrayPositions.get(i)).getMinScale()) {
+						sizeTemp = miteModelSizes.get(i) - 0.01f;
+						miteModelSizes.set(i, sizeTemp);
 					} else {
-						normalMapEntities.get(barrelArrayPositions.get(i)).modIsShrinking(false);
-						barrelGrows.set(i,true);
+						normalMapEntities.get(miteArrayPositions.get(i)).modIsShrinking(false);
+						miteGrows.set(i,true);
 					}
-					System.out.println("BarrelModelSize: " + barrelModelSizes.get(i));
-					System.out.println("normalMapEntitiesBarrelSize: " + normalMapEntities.get(barrelArrayPositions.get(i)).getScale());
 				} else {
-					barrelGrows.set(i,true);
+					miteGrows.set(i,true);
 				}
 
-				if (barrelGrows.get(i) == true) {
-					if (barrelTimes.get(i) < 200) {
-						barrelTimes.set(i,barrelTimes.get(i)+1);
-						System.out.println(barrelTimes.get(i));
+				if (miteGrows.get(i) == true) {
+					if (miteTimes.get(i) < 200) {
+						miteTimes.set(i,miteTimes.get(i)+1);
 					} else {
-						if (barrelModelSizes.get(i) < normalMapEntities.get(barrelArrayPositions.get(i)).getMaxScale()) {
-							barrelModelSizes.set(i,barrelModelSizes.get(i) + 0.01f);
+						if (miteModelSizes.get(i) < normalMapEntities.get(miteArrayPositions.get(i)).getMaxScale()) {
+							miteModelSizes.set(i,miteModelSizes.get(i) + 0.01f);
 						} else {
-							// normalMapEntities.get(barrelModelPosition).modIsShrinking();
-							barrelTimes.set(i,0);
-							barrelGrows.set(i,false);
-							normalMapEntities.get(barrelArrayPositions.get(i)).modIsShrinking(false);
+							// normalMapEntities.get(miteModelPosition).modIsShrinking();
+							miteTimes.set(i,0);
+							miteGrows.set(i,false);
+							normalMapEntities.get(miteArrayPositions.get(i)).modIsShrinking(false);
 						}
 
 					}
 				}
-				normalMapEntities.get(barrelArrayPositions.get(i)).setScale(barrelModelSizes.get(i));
+				normalMapEntities.get(miteArrayPositions.get(i)).setScale(miteModelSizes.get(i));
 
 				
 			}

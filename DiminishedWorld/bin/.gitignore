@@ -1,3 +1,4 @@
+/Collisions/
 /engineTester/
 /entities/
 /fontMeshCreator/
@@ -8,8 +9,3 @@
 /models/
 /music/
 /normalMappingObjConverter/
-/normalMappingRenderer/
-/objConverter/
-/renderEngine/
-/objInfoSaver/
-/Collisions/
