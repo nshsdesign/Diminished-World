@@ -1,6 +1,8 @@
 package engineTester;
 
 import java.io.File;
+
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -55,6 +57,8 @@ import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 
 import menu.*;
+
+import java.lang.Math;
 
 
 public class MainGameLoop {
@@ -397,7 +401,7 @@ public class MainGameLoop {
 
 
 		//**********Normal Map Setup************************
-		TexturedModel barrelModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("mite_1", loader),
+		TexturedModel barrelModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("mite_2", loader),
 				new ModelTexture(loader.loadTexture("mite_Uv")));
 		barrelModel.getTexture().setNormalMap(loader.loadTexture("mite_Uv"));
 		barrelModel.getTexture().setShineDamper(10);
@@ -487,19 +491,26 @@ public class MainGameLoop {
 		
 		//**********Mite Setup************************
 		/**
-		RawModel miteRawModel = OBJFileLoader.loadOBJ("mite_1", loader);
+		RawModel miteRawModel = OBJFileLoader.loadOBJ("mite_2", loader);
 		ModelTexture miteTex = new ModelTexture(loader.loadTexture("mite_Uv"));
 		TexturedModel miteModel = new TexturedModel(miteRawModel, miteTex);
 		*/
 		
-		TexturedModel miteModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("mite_1", loader),
+		
+		TexturedModel miteModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("mite_2", loader),
 				new ModelTexture(loader.loadTexture("mite_Uv")));
 		miteModel.getTexture().setNormalMap(loader.loadTexture("mite_Uv"));
+		
+		TexturedModel RayModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("RayGun", loader),
+				new ModelTexture(loader.loadTexture("front")));
+		RayModel.getTexture().setNormalMap(loader.loadTexture("front"));
+		
 		//miteModel.getTexture().setShineDamper(10);
 		//miteModel.getTexture().setReflectivity(0.5f);
 		
+		
 
-		Basic PlayerBox = new Basic(new Vector3f(75, 10, 0), new Vector3f(5, 10, 5), "Player");
+		Basic PlayerBox = new Basic(new Vector3f(75, 10, 0), new Vector3f(7, 12, 7), "Player");
 
 		//**********Mouse Picker Setup************************
 		//lets you get the coords of where the mouse is on the terrain
@@ -533,6 +544,8 @@ public class MainGameLoop {
 
 
 		//normalMapEntities.add(new Entity(structure3TexModel, new Vector3f(0, 0, 0), 0, 0, 0, 1f, true, "structure3Model"));
+		normalMapEntities.add(new Entity(RayModel, new Vector3f(player.getX(), player.getY(), player.getZ()), 0, 0, 0, 1f, true, "rayModel"));
+		int RayModelPosition = normalMapEntities.size()-1;
 		normalMapEntities.add(new Entity(miteModel, new Vector3f(miteX, miteY, miteZ), 0, 0, 0, 1f, true, "miteModel"));
 		Basic miteBox = new Basic(new Vector3f(miteX, miteY, miteZ), new Vector3f(5, 13, 5), "miteBox");
 		ArrayList<Integer> miteArrayPositions = new ArrayList<Integer>();
@@ -590,7 +603,15 @@ public class MainGameLoop {
 	    int xx = 0;
 	    int yy = 0;
 	    int zz = 0;
-		while (!Display.isCloseRequested()) {
+	    
+	    normalMapEntities.get(RayModelPosition).setPosition(new Vector3f(player.accX()+tempRayStuff[0]*20,player.accY()+tempRayStuff[1]-5,player.accZ()+tempRayStuff[2]*20));
+		normalMapEntities.get(RayModelPosition).setRotX(player.getRotX());
+		normalMapEntities.get(RayModelPosition).setRotY(player.getRotY()-90);
+		normalMapEntities.get(RayModelPosition).setRotZ(player.getRotZ());
+		boolean gameOver = false;
+		int score = 0;
+		while (!Display.isCloseRequested() && gameOver == false) {
+			PlayerBox.setBoxPos(player.getPosition());
 			timeInGame++;
 			if(timeInGame%100 == 0){
 				xx = rand.nextInt(500);
@@ -634,6 +655,7 @@ public class MainGameLoop {
 			//if(time < 300){
 				//time++;
 			//}else{
+			
 
 			if(Mouse.isButtonDown(0) == true){
 				if(fireTime<1){
@@ -666,6 +688,16 @@ public class MainGameLoop {
 				}
 
 			}
+			tempRayStuff = player.accInfoForRayGun();
+			
+			normalMapEntities.get(RayModelPosition).setPosition(new Vector3f(player.accX()+tempRayStuff[0]*20,player.accY()+tempRayStuff[1]*20-5,player.accZ()+tempRayStuff[2]*20));
+			//normalMapEntities.get(RayModelPosition).setPositionMoving(player.accX()+tempRayStuff[0]*20,player.accY()+tempRayStuff[1]*20-5,player.accZ()+tempRayStuff[2]*20);
+			normalMapEntities.get(RayModelPosition).setRotX(player.getRotX());
+			normalMapEntities.get(RayModelPosition).setRotY(player.getRotY()-90);
+			normalMapEntities.get(RayModelPosition).setRotZ(player.getRotZ());
+			
+			
+			
 			for(int y=0; y<tempEntities.size(); y++){
 				if(didThisRun == false){
 					tempEntities.get(y)[1] = tempEntities.get(y)[1].floatValue()-1;
@@ -787,7 +819,7 @@ public class MainGameLoop {
 						}
 						if ((rayBoxes.get(x).checkCollisions(miteBoxes.get(i)))) {
 							normalMapEntities.get(miteArrayPositions.get(i)).modIsShrinking(true);
-							
+							score++;
 							if (miteModelSizes.get(i) > normalMapEntities.get(miteArrayPositions.get(i)).getMinScale()) {
 								miteModelSizes.set(i, miteModelSizes.get(i) - 0.01f);
 								miteTimes.set(i, 0);
@@ -812,14 +844,46 @@ public class MainGameLoop {
 						}else if ((rayBoxes.get(x).checkCollisions(FloorBox))) {
 							//player.move(rayBoxes.get(x).checkFaceCollisions(FloorBox));
 						}
+						
 						// System.out.println("Character Points: " +
 						// rayBoxes.get(x).accPositionPoints());
+					}
+					if(PlayerBox.checkCollisions(miteBoxes.get(i))){
+						System.out.println("Game Over");
+						System.out.println("SCORE: " + score);
+						gameOver = true;
 					}
 
 				}
 			}
 			
-			for(int i=0; i<miteArrayPositions.size(); i++){ //LAST MESS
+			for(int i=0; i<miteArrayPositions.size(); i++){ //LAST MESS   (MAKE SMOOTHER UPDATE WITH ADDING MULTIPLE CHECKS AT ONCE)
+				if(miteModelSizes.get(i) == normalMapEntities.get(miteArrayPositions.get(i)).getMaxScale()){
+					if(normalMapEntities.get(miteArrayPositions.get(i)).getPosition() != player.getPosition()){
+						if(player.getX() > normalMapEntities.get(miteArrayPositions.get(i)).getX()+5){
+							normalMapEntities.get(miteArrayPositions.get(i)).setPosition(new Vector3f(normalMapEntities.get(miteArrayPositions.get(i)).getX()+.3f, normalMapEntities.get(miteArrayPositions.get(i)).getY(), normalMapEntities.get(miteArrayPositions.get(i)).getZ()));
+						}else if(player.getX() < normalMapEntities.get(miteArrayPositions.get(i)).getX()-5){
+							normalMapEntities.get(miteArrayPositions.get(i)).setPosition(new Vector3f(normalMapEntities.get(miteArrayPositions.get(i)).getX()-.3f, normalMapEntities.get(miteArrayPositions.get(i)).getY(), normalMapEntities.get(miteArrayPositions.get(i)).getZ()));
+						}
+						if(player.getY() > normalMapEntities.get(miteArrayPositions.get(i)).getY()+5){
+							normalMapEntities.get(miteArrayPositions.get(i)).setMaxY(normalMapEntities.get(miteArrayPositions.get(i)).getMaxY()+0.3);
+							//normalMapEntities.get(miteArrayPositions.get(i)).setPosition(new Vector3f(normalMapEntities.get(miteArrayPositions.get(i)).getX(), normalMapEntities.get(miteArrayPositions.get(i)).getY()+.3f, normalMapEntities.get(miteArrayPositions.get(i)).getZ()));
+						}else if(player.getY() < normalMapEntities.get(miteArrayPositions.get(i)).getY()-5){
+							normalMapEntities.get(miteArrayPositions.get(i)).setMaxY(normalMapEntities.get(miteArrayPositions.get(i)).getMaxY()-0.3);
+							//normalMapEntities.get(miteArrayPositions.get(i)).setPosition(new Vector3f(normalMapEntities.get(miteArrayPositions.get(i)).getX(), normalMapEntities.get(miteArrayPositions.get(i)).getY()-.3f, normalMapEntities.get(miteArrayPositions.get(i)).getZ()));
+						}
+						if(player.getZ() > normalMapEntities.get(miteArrayPositions.get(i)).getZ()+5){
+							normalMapEntities.get(miteArrayPositions.get(i)).setPosition(new Vector3f(normalMapEntities.get(miteArrayPositions.get(i)).getX(), normalMapEntities.get(miteArrayPositions.get(i)).getY(), normalMapEntities.get(miteArrayPositions.get(i)).getZ()+.3f));
+						}else if(player.getZ() < normalMapEntities.get(miteArrayPositions.get(i)).getZ()-5){
+							normalMapEntities.get(miteArrayPositions.get(i)).setPosition(new Vector3f(normalMapEntities.get(miteArrayPositions.get(i)).getX(), normalMapEntities.get(miteArrayPositions.get(i)).getY(), normalMapEntities.get(miteArrayPositions.get(i)).getZ()-.3f));
+						}
+						miteBoxes.get(i).setBoxPos(normalMapEntities.get(miteArrayPositions.get(i)).getPosition());
+					}
+				}
+				//ComeBack
+				
+				
+				
 				if (normalMapEntities.get(miteArrayPositions.get(i)).getIsShrinking() == true) {
 					miteModelSizes.set(i,normalMapEntities.get(miteArrayPositions.get(i)).getScale()); // ST
 					miteTimes.set(i, 0);
@@ -828,7 +892,20 @@ public class MainGameLoop {
 						miteModelSizes.set(i, sizeTemp);
 					} else {
 						normalMapEntities.get(miteArrayPositions.get(i)).modIsShrinking(false);
-						miteGrows.set(i,true);
+						miteGrows.set(i,true);			
+						for(int m=i; m<miteArrayPositions.size(); m++){
+							miteArrayPositions.set(i, miteArrayPositions.get(i)-1);
+						}
+						normalMapEntities.remove(miteArrayPositions.get(i));
+						miteArrayPositions.remove(i); //HERE
+						miteBoxes.remove(i);
+						miteModelSizes.remove(i);
+						miteTimes.remove(i);
+						miteGrows.remove(i);
+						//miteMovement.remove(i);
+						for(int y=0; y<tempEntities.size(); y++){
+							tempEntities.get(y)[0] = (float)tempEntities.get(y)[0].intValue()-1;
+						}
 					}
 				} else {
 					miteGrows.set(i,true);

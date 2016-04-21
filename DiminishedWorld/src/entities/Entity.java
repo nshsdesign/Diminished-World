@@ -1,6 +1,7 @@
 package entities;
 
 import models.TexturedModel;
+import java.lang.Math;
 
 import org.lwjgl.util.vector.Vector3f;
 
@@ -234,6 +235,93 @@ public class Entity {
 	
 	public String accName(){
 		return name;
+	}
+	
+	public void setMaxY(double d){
+		this.maxY = (float)d;
+	}
+	public void setPositionMoving(float goX, float goY, float goZ){
+		boolean allMoved = false;
+		boolean xDone = false;
+		boolean yDone = false;
+		boolean zDone = false;
+		while(allMoved==false){
+			if((xDone==true) && (yDone==true) && (zDone==true)){
+				allMoved = true;
+			}
+			if(Math.round(this.position.x) == Math.round(goX)){
+				xDone = true;
+			}else{
+				if(this.position.x < goX){
+					this.position.x = this.position.x+0.5f;
+				}else if(this.position.x > goX){
+					this.position.x = this.position.x-0.5f;
+				}
+			}
+			if(Math.round(this.position.y) == Math.round(goY)){
+				yDone = true;
+			}else{
+				if(this.position.y < goY){
+					this.position.y = this.position.y+0.5f;
+				}else if(this.position.y > goY){
+					this.position.y = this.position.y-0.5f;
+				}
+			}
+			if(Math.round(this.position.z) == Math.round(goZ)){
+				zDone = true;
+			}else{
+				if(this.position.z < goZ){
+					this.position.z = this.position.z+0.5f;
+				}else if(this.position.z > goZ){
+					this.position.z = this.position.z-0.5f;
+				}
+			}
+
+		}
+	}
+	public void setRotXMoving(float rotToX){
+		System.out.println("stuck 2");
+		boolean finished = false;
+		while(finished == false){
+			if(this.rotX<rotToX){
+				this.rotX = this.rotX+0.5f;
+			}else if(this.rotX>rotToX){
+				this.rotX = this.rotX-0.5f;
+			}
+			if(Math.round(this.rotX) == rotToX){
+				finished = true;
+			}
+		}
+	}
+	public void setRotYMoving(float rotToY){
+		System.out.println("stuck 3");
+		boolean finished = false;
+		while(finished == false){
+			if(this.rotY<rotToY){
+				this.rotY = this.rotY+0.5f;
+			}else if(this.rotY>rotToY){
+				this.rotY = this.rotY-0.5f;
+			}
+			if(Math.round(this.rotY) == rotToY){
+				finished = true;
+			}
+		}
+		
+	}
+	public void setRotZMoving(float rotToZ){
+		System.out.println("stuck 4");
+		boolean finished = false;
+		while(finished == false){
+			if(this.rotZ<rotToZ){
+				this.rotZ = this.rotZ+0.5f;
+			}else if(this.rotZ>rotToZ){
+				this.rotZ = this.rotZ-0.5f;
+			}
+			if(Math.round(this.rotZ) == rotToZ){
+				finished = true;
+			}
+		}
+	
 	}
 
 }

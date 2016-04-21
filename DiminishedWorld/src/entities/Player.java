@@ -26,6 +26,8 @@ public class Player extends Entity {
 	private int sanity;
 	private int sprint;
 	private int amountOfDust;
+	
+	boolean hasMoved;
 
 	public Player(Camera camera, TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ,
 			float scale) {
@@ -36,6 +38,7 @@ public class Player extends Entity {
 		sprint = 0;
 		amountOfDust = 0;
 		hasRayGun = true; //ST FOR TESTS SHOULD START AS FALSE
+		hasMoved = false;
 	}
 
 	public void move() {
@@ -57,6 +60,7 @@ public class Player extends Entity {
 		}
 		if (camera.getType() == Camera.FIRST_PERSON || camera.getType() == Camera.THIRD_PERSON) {
 			if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
+				hasMoved = true;
 				dz = (float) (speed * Math.cos(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90)));
 				dx = (float) (-speed * Math.sin(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90)));
 				dy = (float) (-speed * Math.sin(Math.toRadians(pitch))); // correct
@@ -73,6 +77,7 @@ public class Player extends Entity {
 				}
 			}
 			if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
+				hasMoved = true;
 				dz = (float) (-speed * Math.cos(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90)));
 				dx = (float) (speed * Math.sin(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90)));
 				dy = (float) (speed * Math.sin(Math.toRadians(pitch)));
@@ -110,6 +115,7 @@ public class Player extends Entity {
 		}
 		if (camera.getType() == Camera.FIRST_PERSON || camera.getType() == Camera.THIRD_PERSON) {
 			if ((Keyboard.isKeyDown(Keyboard.KEY_W)) && (!face.equals("right"))) {
+				hasMoved = true;
 				dz = (float) (speed * Math.cos(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90)));
 				dx = (float) (-speed * Math.sin(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90)));
 				dy = (float) (-speed * Math.sin(Math.toRadians(pitch))); // correct
@@ -126,6 +132,7 @@ public class Player extends Entity {
 				}
 			}
 			if ((Keyboard.isKeyDown(Keyboard.KEY_S)) && (!face.equals("left"))) {
+				hasMoved = true;
 				dz = (float) (-speed * Math.cos(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90)));
 				dx = (float) (speed * Math.sin(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90)));
 				dy = (float) (speed * Math.sin(Math.toRadians(pitch)));
@@ -166,6 +173,17 @@ public class Player extends Entity {
 		
 		return infoForRay;
 	}
+	
+	public void modMoved(boolean newMove){
+		hasMoved = newMove;
+	}
+	
+	public boolean accHasMoved(){
+		boolean tempHasMoved = hasMoved;
+		this.modMoved(false);
+		return tempHasMoved;
+	}
+	
 
 	public void modSanity(int newSanity){
 		sanity = newSanity;
