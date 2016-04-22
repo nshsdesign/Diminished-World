@@ -42,7 +42,7 @@ public class Camera {
 	private static final float ANGLE_MOVE_SPEED = 50;
 	private static final float MOVE_SPEED = ANGLE_MOVE_SPEED;
 	
-	public Camera(int type){
+	public Camera(int type){		
 		this.type = type;
 		position = new Vector3f(0,0,0);
 		

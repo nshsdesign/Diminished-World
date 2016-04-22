@@ -1,9 +1,16 @@
 package entities;
 
-import models.TexturedModel;
-import java.lang.Math;
-
+import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+
+import models.RawModel;
+import models.TexturedModel;
+import objConverter.OBJFileLoader;
+import picking.AABB;
+import picking.BoundingBox;
+import renderEngine.Loader;
+import textures.ModelTexture;
+import toolbox.Maths;
 
 public class Entity {
 
@@ -18,6 +25,9 @@ public class Entity {
 	private boolean canShrink; //ST
 	private String name; //ST may not be needed
 	private float maxY;
+	private BoundingBox boundingBox;
+	private boolean isStatic;
+	private Matrix4f modelMatrix = new Matrix4f();
 	
 	private int textureIndex = 0;
 
@@ -91,44 +101,6 @@ public class Entity {
 		maxY = position.y;
 	}
 	
-	public float getTextureXOffset(){
-		int column = textureIndex%model.getTexture().getNumberOfRows();
-		return (float)column/(float)model.getTexture().getNumberOfRows();
-	}
-	
-	public float getTextureYOffset(){
-		int row = textureIndex/model.getTexture().getNumberOfRows();
-		return (float)row/(float)model.getTexture().getNumberOfRows();
-	}
-
-	public void increasePosition(float dx, float dy, float dz) {
-		this.position.x += dx;
-		this.position.y += dy;
-		this.position.z += dz;
-	}
-
-	public void increaseRotation(float dx, float dy, float dz) {
-		this.rotX += dx;
-		this.rotY += dy;
-		this.rotZ += dz;
-	}
-
-	public TexturedModel getModel() {
-		return model;
-	}
-
-	public void setModel(TexturedModel model) {
-		this.model = model;
-	}
-
-	public Vector3f getPosition() {
-		return position;
-	}
-
-	public void setPosition(Vector3f position) {
-		this.position = position;
-	}
-	
 	public float getX(){
 		return this.position.x;
 	}
@@ -143,38 +115,6 @@ public class Entity {
 	
 	public float getZ(){
 		return this.position.z;
-	}
-
-	public float getRotX() {
-		return rotX;
-	}
-
-	public void setRotX(float rotX) {
-		this.rotX = rotX;
-	}
-
-	public float getRotY() {
-		return rotY;
-	}
-
-	public void setRotY(float rotY) {
-		this.rotY = rotY;
-	}
-
-	public float getRotZ() {
-		return rotZ;
-	}
-
-	public void setRotZ(float rotZ) {
-		this.rotZ = rotZ;
-	}
-
-	public float getScale() {
-		return scale;
-	}
-
-	public void setScale(float scale) {
-		this.scale = scale;
 	}
 	
 	public float getMinScale() { //ST
@@ -236,92 +176,163 @@ public class Entity {
 	public String accName(){
 		return name;
 	}
-	
-	public void setMaxY(double d){
-		this.maxY = (float)d;
-	}
-	public void setPositionMoving(float goX, float goY, float goZ){
-		boolean allMoved = false;
-		boolean xDone = false;
-		boolean yDone = false;
-		boolean zDone = false;
-		while(allMoved==false){
-			if((xDone==true) && (yDone==true) && (zDone==true)){
-				allMoved = true;
-			}
-			if(Math.round(this.position.x) == Math.round(goX)){
-				xDone = true;
-			}else{
-				if(this.position.x < goX){
-					this.position.x = this.position.x+0.5f;
-				}else if(this.position.x > goX){
-					this.position.x = this.position.x-0.5f;
-				}
-			}
-			if(Math.round(this.position.y) == Math.round(goY)){
-				yDone = true;
-			}else{
-				if(this.position.y < goY){
-					this.position.y = this.position.y+0.5f;
-				}else if(this.position.y > goY){
-					this.position.y = this.position.y-0.5f;
-				}
-			}
-			if(Math.round(this.position.z) == Math.round(goZ)){
-				zDone = true;
-			}else{
-				if(this.position.z < goZ){
-					this.position.z = this.position.z+0.5f;
-				}else if(this.position.z > goZ){
-					this.position.z = this.position.z-0.5f;
-				}
-			}
 
-		}
+	public Entity(Loader loader, String name, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
+		this(loader, name, 0, position, rotX, rotY, rotZ, scale);
 	}
-	public void setRotXMoving(float rotToX){
-		System.out.println("stuck 2");
-		boolean finished = false;
-		while(finished == false){
-			if(this.rotX<rotToX){
-				this.rotX = this.rotX+0.5f;
-			}else if(this.rotX>rotToX){
-				this.rotX = this.rotX-0.5f;
-			}
-			if(Math.round(this.rotX) == rotToX){
-				finished = true;
-			}
-		}
+	
+	public Entity(Loader loader, String name, Vector3f position, Vector3f rot, float scale) {
+		this(loader, name, 0, position, rot.x, rot.y, rot.z, scale);
 	}
-	public void setRotYMoving(float rotToY){
-		System.out.println("stuck 3");
-		boolean finished = false;
-		while(finished == false){
-			if(this.rotY<rotToY){
-				this.rotY = this.rotY+0.5f;
-			}else if(this.rotY>rotToY){
-				this.rotY = this.rotY-0.5f;
-			}
-			if(Math.round(this.rotY) == rotToY){
-				finished = true;
-			}
-		}
+
+	public Entity(Loader loader, String name, int index, Vector3f position, float rotX, float rotY, float rotZ,
+			float scale) {
+		this.name = name;
+		this.textureIndex = index;
+		this.position = position;
+		this.rotX = rotX;
+		this.rotY = rotY;
+		this.rotZ = rotZ;
+		this.scale = scale;
+
+		RawModel rawModel = OBJFileLoader.loadOBJ(name, loader);
+		ModelTexture tex = new ModelTexture(loader.loadTexture("textureFiles", name));
+		this.model = new TexturedModel(rawModel, tex);
+
+		this.boundingBox = new BoundingBox(this);
+		
+		//modelMatrix = Maths.createTransformationMatrix(position, rotX, rotY, rotZ, scale);
+	}
+
+	public Entity(Entity e) {
+		this.name = e.getName();
+		this.position = e.getPosition();
+		this.rotX = e.getRotX();
+		this.rotY = e.getRotY();
+		this.rotZ = e.getRotZ();
+		this.scale = e.getScale();
+		this.boundingBox = e.getBoundingBox();
+		this.model = e.getModel();
+	}
+	
+	public Entity() {
 		
 	}
-	public void setRotZMoving(float rotToZ){
-		System.out.println("stuck 4");
-		boolean finished = false;
-		while(finished == false){
-			if(this.rotZ<rotToZ){
-				this.rotZ = this.rotZ+0.5f;
-			}else if(this.rotZ>rotToZ){
-				this.rotZ = this.rotZ-0.5f;
-			}
-			if(Math.round(this.rotZ) == rotToZ){
-				finished = true;
-			}
-		}
-	
+
+	public float getTextureXOffset() {
+		int column = textureIndex % model.getTexture().getNumberOfRows();
+		return (float) column / (float) model.getTexture().getNumberOfRows();
 	}
 
+	public float getTextureYOffset() {
+		int row = textureIndex / model.getTexture().getNumberOfRows();
+		return (float) row / (float) model.getTexture().getNumberOfRows();
+	}
+
+	public void increasePosition(float dx, float dy, float dz) {
+		this.position.x += dx;
+		this.position.y += dy;
+		this.position.z += dz;
+	}
+
+	public void increaseRotation(float dx, float dy, float dz) {
+		this.rotX += dx;
+		this.rotY += dy;
+		this.rotZ += dz;
+	}
+
+	public TexturedModel getModel() {
+		return model;
+	}
+
+	public void setModel(TexturedModel model) {
+		this.model = model;
+	}
+
+	public Vector3f getPosition() {
+		return position;
+	}
+
+	public void setPosition(Vector3f position) {
+		this.position = position;
+	}
+
+	public float getRotX() {
+		return rotX;
+	}
+
+	public void setRotX(float rotX) {
+		this.rotX = rotX;
+	}
+
+	public float getRotY() {
+		return rotY;
+	}
+
+	public void setRotY(float rotY) {
+		this.rotY = rotY;
+	}
+
+	public float getRotZ() {
+		return rotZ;
+	}
+
+	public void setRotZ(float rotZ) {
+		this.rotZ = rotZ;
+	}
+
+	public float getScale() {
+		return scale;
+	}
+
+	public void setScale(float scale) {
+		this.scale = scale;
+	}
+
+	public boolean getIsStatic() {
+		return isStatic;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setModel(Loader loader, String name) {
+		RawModel rawModel = OBJFileLoader.loadOBJ(name, loader);
+		ModelTexture tex = new ModelTexture(loader.loadTexture("textureFiles", name));
+		this.model = new TexturedModel(rawModel, tex);
+		this.name = name;
+	}
+
+	public AABB getAABB() {
+		return boundingBox.getAABB();
+	}
+
+	public BoundingBox getBoundingBox() {
+		return boundingBox;
+	}
+
+	public Matrix4f getModelMatrix(){
+		Maths.updateTransformationMatrix(modelMatrix, position.x, position.y, position.z, rotX, rotY, rotZ, scale);
+		return modelMatrix;
+	}
+	
+//		public void updateModelMatrix(Vector3f up, Vector3f forward) {
+//			Matrix4f rotation = Maths.getRotationMatrix(up, forward);
+//			modelMatrix.setIdentity();
+//			Matrix4f.translate(position, modelMatrix, modelMatrix);
+//			Matrix4f.mul(modelMatrix, rotation, modelMatrix);
+//			//Matrix4f.scale(new Vector3f(scale, scale, scale), modelMatrix, modelMatrix);
+//		}
+//	
+//		public void update(){
+//			Vector3f up = new Vector3f(0,1,0);
+//			Vector3f forward = new Vector3f(1,0,0);
+//			updateModelMatrix(up, forward);
+//		}
+		
 }

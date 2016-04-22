@@ -7,6 +7,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import models.RawModel;
+import objConverter.ModelData;
 
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
@@ -135,7 +136,8 @@ public class Terrain {
 				indices[pointer++] = bottomRight;
 			}
 		}
-		return loader.loadToVAO(vertices, textureCoords, normals, indices);
+		
+		return loader.loadToVAO(vertices, textureCoords, normals, indices, null);
 	}
 	
 	private Vector3f calculateNormal(int x, int z, BufferedImage image){

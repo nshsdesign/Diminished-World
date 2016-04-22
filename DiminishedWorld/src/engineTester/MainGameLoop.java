@@ -1,11 +1,20 @@
 package engineTester;
 
+import java.awt.Color;
+import java.awt.event.KeyEvent;
 import java.io.File;
-
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import javax.swing.AbstractButton;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
@@ -25,45 +34,34 @@ import fontMeshCreator.GUIText;
 import fontRendering.TextMaster;
 import guis.GuiRenderer;
 import guis.GuiTexture;
+import menu.NewWindowListener;
+import menu.buttonActionListener;
+import menu.menuPanel;
 import models.RawModel;
 import models.TexturedModel;
 import music.audioPlayer;
 import normalMappingObjConverter.NormalMappedObjLoader;
 import objConverter.OBJFileLoader;
-import objInfoSaver.objInfoSave;
 import renderEngine.DisplayManager;
 import renderEngine.Loader;
 import renderEngine.MasterRenderer;
 import terrains.Terrain;
 import textures.ModelTexture;
-import textures.TerrainTexture;
-import textures.TerrainTexturePack;
 import toolbox.MousePicker;
 import water.WaterFrameBuffers;
 import water.WaterRenderer;
 import water.WaterShader;
 import water.WaterTile;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-import java.awt.Color;
-import java.awt.event.*;
-import javax.swing.JButton;
-import javax.swing.AbstractButton;
-import javax.swing.ImageIcon;
-
-import menu.*;
-
-import java.lang.Math;
-
 
 public class MainGameLoop {
 
-	public static void main(String[] args) {
+	public static MasterRenderer renderer;
+	public static Loader loader;
+	public static Camera camera;
+	public static List<Entity> entities;
+
+	public static void main(String[] args) {	
 
 		/**
 		String[] randomInfo = new String[3];
@@ -383,39 +381,39 @@ public class MainGameLoop {
 		//initializing stuff
 		DisplayManager.createDisplay();
 		menuFrame.setVisible(false); //ST
-		Loader loader = new Loader();
+		loader = new Loader();
 //		Random random = new Random();
 		TextMaster.init(loader);
-		MasterRenderer renderer = new MasterRenderer(loader);
+		renderer = new MasterRenderer(loader);
 		GuiRenderer guiRenderer = new GuiRenderer(loader);
 
 
 		//**********Font Setup************************
-		FontType font = new FontType(loader.loadTexture("verdana"), new File("res/verdana.fnt"));
+		FontType font = new FontType(loader.loadTexture("fonts", "verdana"), new File("res/fonts/verdana.fnt"));
 
 		//**********Textured Model Setup************************
 		RawModel playerModel = OBJFileLoader.loadOBJ("testPlanet", loader);
-		ModelTexture playerTex = new ModelTexture(loader.loadTexture("sunTex"));
+		ModelTexture playerTex = new ModelTexture(loader.loadTexture("textureFiles", "sunTex"));
 		TexturedModel playerTexModel = new TexturedModel(playerModel, playerTex);
 
 
 
 		//**********Normal Map Setup************************
-		TexturedModel barrelModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("mite_2", loader),
-				new ModelTexture(loader.loadTexture("mite_Uv")));
-		barrelModel.getTexture().setNormalMap(loader.loadTexture("mite_Uv"));
-		barrelModel.getTexture().setShineDamper(10);
-		barrelModel.getTexture().setReflectivity(0.5f);
+//		TexturedModel barrelModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("mite_1", loader),
+//				new ModelTexture(loader.loadTexture("textures", "mite_Uv")));
+//		barrelModel.getTexture().setNormalMap(loader.loadTexture("textureFiles", "mite_Uv"));
+//		barrelModel.getTexture().setShineDamper(10);
+//		barrelModel.getTexture().setReflectivity(0.5f);
 
 		TexturedModel testPlanetModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("testPlanet", loader),
-				new ModelTexture(loader.loadTexture("TestPlanetTex")));
-		testPlanetModel.getTexture().setNormalMap(loader.loadTexture("TestPlanetTex"));
+				new ModelTexture(loader.loadTexture("textureFiles", "TestPlanetTex")));
+//		testPlanetModel.getTexture().setNormalMap(loader.loadTexture("normalMaps", "TestPlanetTex"));
 		testPlanetModel.getTexture().setShineDamper(10);
 		testPlanetModel.getTexture().setReflectivity(0.5f);
 
 		TexturedModel structureModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("structure3withOpening", loader),
-				new ModelTexture(loader.loadTexture("sunTex")));
-		structureModel.getTexture().setNormalMap(loader.loadTexture("sunTex"));
+				new ModelTexture(loader.loadTexture("textureFiles", "sunTex")));
+//		structureModel.getTexture().setNormalMap(loader.loadTexture("normalMaps", "sunTex"));
 		structureModel.getTexture().setShineDamper(10);
 		structureModel.getTexture().setReflectivity(0.5f);
 
@@ -430,20 +428,20 @@ public class MainGameLoop {
 		TerrainTexture bTexture = new TerrainTexture(loader.loadTexture("path"));
 		*/
 
-		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture("space"));
-		TerrainTexture rTexture = new TerrainTexture(loader.loadTexture("space"));
-		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture("space"));
-		TerrainTexture bTexture = new TerrainTexture(loader.loadTexture("space"));
+//		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture("space"));
+//		TerrainTexture rTexture = new TerrainTexture(loader.loadTexture("space"));
+//		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture("space"));
+//		TerrainTexture bTexture = new TerrainTexture(loader.loadTexture("space"));
 
-		TerrainTexturePack texturePack = new TerrainTexturePack(backgroundTexture, rTexture,
-				gTexture, bTexture);
-		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("blendMap"));
+//		TerrainTexturePack texturePack = new TerrainTexturePack(backgroundTexture, rTexture,
+//				gTexture, bTexture);
+//		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("blendMap"));
 		//Basic FloorBox = new Basic(new Vector3f(75, 0, 0), new Vector3f(1000, 1000, 1000), "Floor");
 		Basic FloorBox = new Basic(new Vector3f(75, 0, 0), new Vector3f(1, 1, 1), "Floor");
 
 
 		//lists for keeping track of world items
-		List<Entity> entities = new ArrayList<Entity>();
+		entities = new ArrayList<Entity>();
 		List<Entity> normalMapEntities = new ArrayList<Entity>();
 		List<Light> lights = new ArrayList<Light>();
 		List<Terrain> terrains = new ArrayList<Terrain>();
@@ -468,10 +466,10 @@ public class MainGameLoop {
 		//guiTextures.add(new GuiTexture(3, new Vector2f(0.5f,0.5f), new Vector2f(0.5f,0.5f)));
 		//guiTextures.add(new GuiTexture(5, new Vector2f(0.5f,0.5f), new Vector2f(0.5f,0.5f)));
 		//guiTextures.add(new GuiTexture(loader.loadTexture("/sanity/sanityBar100"), new Vector2f(-.65f,-.54f), new Vector2f(0.45f,0.05f))); //ST
-		guiTextures.add(new GuiTexture(loader.loadTexture("health"), new Vector2f(-0.9f,-0.67f), new Vector2f(0.2f,0.2f))); //ST
-		guiTextures.add(new GuiTexture(loader.loadTexture("health"), new Vector2f(0.82f,-0.67f), new Vector2f(0.2f,0.2f))); //ST
-		guiTextures.add(new GuiTexture(loader.loadTexture("fern"), new Vector2f(0.82f,0.75f), new Vector2f(0.2f,0.2f))); //ST
-		guiTextures.add(new GuiTexture(loader.loadTexture("aim3lineYellowMidV2"), new Vector2f(0f,0f), new Vector2f(0.05f,0.05f))); //ST
+		guiTextures.add(new GuiTexture(loader.loadTexture("guis", "health"), new Vector2f(-0.9f,-0.67f), new Vector2f(0.2f,0.2f))); //ST
+		guiTextures.add(new GuiTexture(loader.loadTexture("guis", "health"), new Vector2f(0.82f,-0.67f), new Vector2f(0.2f,0.2f))); //ST
+//		guiTextures.add(new GuiTexture(loader.loadTexture("guis", "fern"), new Vector2f(0.82f,0.75f), new Vector2f(0.2f,0.2f))); //ST
+		guiTextures.add(new GuiTexture(loader.loadTexture("guis", "aim3lineYellowMidV2"), new Vector2f(0f,0f), new Vector2f(0.05f,0.05f))); //ST
 
 
 		//**********Light Setup************************
@@ -480,41 +478,34 @@ public class MainGameLoop {
 
 		//**********Terrain Setup************************
 		//Terrain terrain = new Terrain(0, -1, loader, texturePack, blendMap, "heightmap");
-		Terrain terrain = new Terrain(0, -1000000, loader, texturePack, blendMap, "heightmap");
-		terrains.add(terrain);
+//		Terrain terrain = new Terrain(0, -1000000, loader, texturePack, blendMap, "heightmap");
+//		terrains.add(terrain);
 
 		//**********Camera and Player Setup************************
-		Camera camera = new Camera(Camera.FIRST_PERSON);
+		camera = new Camera(Camera.FIRST_PERSON);
 		Player player = new Player(camera, playerTexModel, new Vector3f(100, 0, 0), 0, 0, 0, 1);
 		entities.add(player);
 		int playerEntityPosition = entities.size() - 1;
 		
 		//**********Mite Setup************************
 		/**
-		RawModel miteRawModel = OBJFileLoader.loadOBJ("mite_2", loader);
+		RawModel miteRawModel = OBJFileLoader.loadOBJ("mite_1", loader);
 		ModelTexture miteTex = new ModelTexture(loader.loadTexture("mite_Uv"));
 		TexturedModel miteModel = new TexturedModel(miteRawModel, miteTex);
 		*/
 		
-		
-		TexturedModel miteModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("mite_2", loader),
-				new ModelTexture(loader.loadTexture("mite_Uv")));
-		miteModel.getTexture().setNormalMap(loader.loadTexture("mite_Uv"));
-		
-		TexturedModel RayModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("RayGun", loader),
-				new ModelTexture(loader.loadTexture("front")));
-		RayModel.getTexture().setNormalMap(loader.loadTexture("front"));
-		
+		TexturedModel miteModel = new TexturedModel(NormalMappedObjLoader.loadOBJ("crate", loader),
+				new ModelTexture(loader.loadTexture("textureFiles", "crate")));
+//		miteModel.getTexture().setNormalMap(loader.loadTexture("normalMaps", "mite_Uv"));
 		//miteModel.getTexture().setShineDamper(10);
 		//miteModel.getTexture().setReflectivity(0.5f);
 		
-		
 
-		Basic PlayerBox = new Basic(new Vector3f(75, 10, 0), new Vector3f(7, 12, 7), "Player");
+		Basic PlayerBox = new Basic(new Vector3f(75, 10, 0), new Vector3f(5, 10, 5), "Player");
 
 		//**********Mouse Picker Setup************************
 		//lets you get the coords of where the mouse is on the terrain
-		MousePicker picker = new MousePicker(camera, renderer.getProjectionMatrix(), terrain);
+		MousePicker picker = new MousePicker(camera, renderer.getProjectionMatrix());
 
 		//**********Water Renderer Setup************************
 		WaterFrameBuffers buffers = new WaterFrameBuffers();
@@ -529,7 +520,7 @@ public class MainGameLoop {
 		Light l = new Light(new Vector3f(0, 0, 0), new Vector3f(.5f, .5f, .5f));
 		lights.add(l);
 		int testSanity = player.accSanity()+1; //ST
-		GuiTexture sanityTexture = new GuiTexture(loader.loadTexture("/sanity/sanityBar"+testSanity), new Vector2f(-.65f,-.54f), new Vector2f(0.45f,0.05f));
+		GuiTexture sanityTexture = new GuiTexture(loader.loadTexture("sanity", "sanityBar"+testSanity), new Vector2f(-.65f,-.54f), new Vector2f(0.45f,0.05f));
 		guiTextures.add(sanityTexture);
 		//guiTextures.add(new GuiTexture(loader.loadTexture("/sanity/sanityBar"+testSanity), new Vector2f(-5f,-5f), new Vector2f(0.45f,0.05f)));
 		//int guiSanityTexturePosition = guiTextures.size()-1;
@@ -544,8 +535,6 @@ public class MainGameLoop {
 
 
 		//normalMapEntities.add(new Entity(structure3TexModel, new Vector3f(0, 0, 0), 0, 0, 0, 1f, true, "structure3Model"));
-		normalMapEntities.add(new Entity(RayModel, new Vector3f(player.getX(), player.getY(), player.getZ()), 0, 0, 0, 1f, true, "rayModel"));
-		int RayModelPosition = normalMapEntities.size()-1;
 		normalMapEntities.add(new Entity(miteModel, new Vector3f(miteX, miteY, miteZ), 0, 0, 0, 1f, true, "miteModel"));
 		Basic miteBox = new Basic(new Vector3f(miteX, miteY, miteZ), new Vector3f(5, 13, 5), "miteBox");
 		ArrayList<Integer> miteArrayPositions = new ArrayList<Integer>();
@@ -603,15 +592,7 @@ public class MainGameLoop {
 	    int xx = 0;
 	    int yy = 0;
 	    int zz = 0;
-	    
-	    normalMapEntities.get(RayModelPosition).setPosition(new Vector3f(player.accX()+tempRayStuff[0]*20,player.accY()+tempRayStuff[1]-5,player.accZ()+tempRayStuff[2]*20));
-		normalMapEntities.get(RayModelPosition).setRotX(player.getRotX());
-		normalMapEntities.get(RayModelPosition).setRotY(player.getRotY()-90);
-		normalMapEntities.get(RayModelPosition).setRotZ(player.getRotZ());
-		boolean gameOver = false;
-		int score = 0;
-		while (!Display.isCloseRequested() && gameOver == false) {
-			PlayerBox.setBoxPos(player.getPosition());
+		while (!Display.isCloseRequested()) {
 			timeInGame++;
 			if(timeInGame%100 == 0){
 				xx = rand.nextInt(500);
@@ -638,7 +619,7 @@ public class MainGameLoop {
 			//System.out.println("Time: " + timeInGame);
 			if(camera.getType() != Camera.FREE_ROAM)player.move();
 			camera.move();
-			picker.update();
+			//picker.update(0);
 			fireTime--;
 			/**
 			for (Entity e : entities) {
@@ -655,7 +636,6 @@ public class MainGameLoop {
 			//if(time < 300){
 				//time++;
 			//}else{
-			
 
 			if(Mouse.isButtonDown(0) == true){
 				if(fireTime<1){
@@ -688,16 +668,6 @@ public class MainGameLoop {
 				}
 
 			}
-			tempRayStuff = player.accInfoForRayGun();
-			
-			normalMapEntities.get(RayModelPosition).setPosition(new Vector3f(player.accX()+tempRayStuff[0]*20,player.accY()+tempRayStuff[1]*20-5,player.accZ()+tempRayStuff[2]*20));
-			//normalMapEntities.get(RayModelPosition).setPositionMoving(player.accX()+tempRayStuff[0]*20,player.accY()+tempRayStuff[1]*20-5,player.accZ()+tempRayStuff[2]*20);
-			normalMapEntities.get(RayModelPosition).setRotX(player.getRotX());
-			normalMapEntities.get(RayModelPosition).setRotY(player.getRotY()-90);
-			normalMapEntities.get(RayModelPosition).setRotZ(player.getRotZ());
-			
-			
-			
 			for(int y=0; y<tempEntities.size(); y++){
 				if(didThisRun == false){
 					tempEntities.get(y)[1] = tempEntities.get(y)[1].floatValue()-1;
@@ -819,7 +789,7 @@ public class MainGameLoop {
 						}
 						if ((rayBoxes.get(x).checkCollisions(miteBoxes.get(i)))) {
 							normalMapEntities.get(miteArrayPositions.get(i)).modIsShrinking(true);
-							score++;
+							
 							if (miteModelSizes.get(i) > normalMapEntities.get(miteArrayPositions.get(i)).getMinScale()) {
 								miteModelSizes.set(i, miteModelSizes.get(i) - 0.01f);
 								miteTimes.set(i, 0);
@@ -844,46 +814,14 @@ public class MainGameLoop {
 						}else if ((rayBoxes.get(x).checkCollisions(FloorBox))) {
 							//player.move(rayBoxes.get(x).checkFaceCollisions(FloorBox));
 						}
-						
 						// System.out.println("Character Points: " +
 						// rayBoxes.get(x).accPositionPoints());
-					}
-					if(PlayerBox.checkCollisions(miteBoxes.get(i))){
-						System.out.println("Game Over");
-						System.out.println("SCORE: " + score);
-						gameOver = true;
 					}
 
 				}
 			}
 			
-			for(int i=0; i<miteArrayPositions.size(); i++){ //LAST MESS   (MAKE SMOOTHER UPDATE WITH ADDING MULTIPLE CHECKS AT ONCE)
-				if(miteModelSizes.get(i) == normalMapEntities.get(miteArrayPositions.get(i)).getMaxScale()){
-					if(normalMapEntities.get(miteArrayPositions.get(i)).getPosition() != player.getPosition()){
-						if(player.getX() > normalMapEntities.get(miteArrayPositions.get(i)).getX()+5){
-							normalMapEntities.get(miteArrayPositions.get(i)).setPosition(new Vector3f(normalMapEntities.get(miteArrayPositions.get(i)).getX()+.3f, normalMapEntities.get(miteArrayPositions.get(i)).getY(), normalMapEntities.get(miteArrayPositions.get(i)).getZ()));
-						}else if(player.getX() < normalMapEntities.get(miteArrayPositions.get(i)).getX()-5){
-							normalMapEntities.get(miteArrayPositions.get(i)).setPosition(new Vector3f(normalMapEntities.get(miteArrayPositions.get(i)).getX()-.3f, normalMapEntities.get(miteArrayPositions.get(i)).getY(), normalMapEntities.get(miteArrayPositions.get(i)).getZ()));
-						}
-						if(player.getY() > normalMapEntities.get(miteArrayPositions.get(i)).getY()+5){
-							normalMapEntities.get(miteArrayPositions.get(i)).setMaxY(normalMapEntities.get(miteArrayPositions.get(i)).getMaxY()+0.3);
-							//normalMapEntities.get(miteArrayPositions.get(i)).setPosition(new Vector3f(normalMapEntities.get(miteArrayPositions.get(i)).getX(), normalMapEntities.get(miteArrayPositions.get(i)).getY()+.3f, normalMapEntities.get(miteArrayPositions.get(i)).getZ()));
-						}else if(player.getY() < normalMapEntities.get(miteArrayPositions.get(i)).getY()-5){
-							normalMapEntities.get(miteArrayPositions.get(i)).setMaxY(normalMapEntities.get(miteArrayPositions.get(i)).getMaxY()-0.3);
-							//normalMapEntities.get(miteArrayPositions.get(i)).setPosition(new Vector3f(normalMapEntities.get(miteArrayPositions.get(i)).getX(), normalMapEntities.get(miteArrayPositions.get(i)).getY()-.3f, normalMapEntities.get(miteArrayPositions.get(i)).getZ()));
-						}
-						if(player.getZ() > normalMapEntities.get(miteArrayPositions.get(i)).getZ()+5){
-							normalMapEntities.get(miteArrayPositions.get(i)).setPosition(new Vector3f(normalMapEntities.get(miteArrayPositions.get(i)).getX(), normalMapEntities.get(miteArrayPositions.get(i)).getY(), normalMapEntities.get(miteArrayPositions.get(i)).getZ()+.3f));
-						}else if(player.getZ() < normalMapEntities.get(miteArrayPositions.get(i)).getZ()-5){
-							normalMapEntities.get(miteArrayPositions.get(i)).setPosition(new Vector3f(normalMapEntities.get(miteArrayPositions.get(i)).getX(), normalMapEntities.get(miteArrayPositions.get(i)).getY(), normalMapEntities.get(miteArrayPositions.get(i)).getZ()-.3f));
-						}
-						miteBoxes.get(i).setBoxPos(normalMapEntities.get(miteArrayPositions.get(i)).getPosition());
-					}
-				}
-				//ComeBack
-				
-				
-				
+			for(int i=0; i<miteArrayPositions.size(); i++){ //LAST MESS
 				if (normalMapEntities.get(miteArrayPositions.get(i)).getIsShrinking() == true) {
 					miteModelSizes.set(i,normalMapEntities.get(miteArrayPositions.get(i)).getScale()); // ST
 					miteTimes.set(i, 0);
@@ -892,20 +830,7 @@ public class MainGameLoop {
 						miteModelSizes.set(i, sizeTemp);
 					} else {
 						normalMapEntities.get(miteArrayPositions.get(i)).modIsShrinking(false);
-						miteGrows.set(i,true);			
-						for(int m=i; m<miteArrayPositions.size(); m++){
-							miteArrayPositions.set(i, miteArrayPositions.get(i)-1);
-						}
-						normalMapEntities.remove(miteArrayPositions.get(i));
-						miteArrayPositions.remove(i); //HERE
-						miteBoxes.remove(i);
-						miteModelSizes.remove(i);
-						miteTimes.remove(i);
-						miteGrows.remove(i);
-						//miteMovement.remove(i);
-						for(int y=0; y<tempEntities.size(); y++){
-							tempEntities.get(y)[0] = (float)tempEntities.get(y)[0].intValue()-1;
-						}
+						miteGrows.set(i,true);
 					}
 				} else {
 					miteGrows.set(i,true);

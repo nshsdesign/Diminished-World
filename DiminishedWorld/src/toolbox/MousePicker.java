@@ -7,13 +7,12 @@ import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-import terrains.Terrain;
 import entities.Camera;
 
 public class MousePicker {
 
 	private static final int RECURSION_COUNT = 200;
-	private static final float RAY_RANGE = 600;
+	private static final float RAY_RANGE = 10000;
 
 	private Vector3f currentRay = new Vector3f();
 
@@ -21,32 +20,37 @@ public class MousePicker {
 	private Matrix4f viewMatrix;
 	private Camera camera;
 	
-	private Terrain terrain;
-	private Vector3f currentTerrainPoint;
+	private Vector3f currentPoint;
+	
+	float height = 0;
 
-	public MousePicker(Camera cam, Matrix4f projection, Terrain terrain) {
+	public MousePicker(Camera cam, Matrix4f projection) {
 		camera = cam;
 		projectionMatrix = projection;
 		viewMatrix = Maths.createViewMatrix(camera);
-		this.terrain = terrain;
 	}
 	
-	public Vector3f getCurrentTerrainPoint() {
-		return currentTerrainPoint;
+	public Vector3f getCurrentPoint() {
+		return currentPoint;
 	}
 
 	public Vector3f getCurrentRay() {
 		return currentRay;
 	}
 
-	public void update() {
+	public void update(float height) {
+		this.height = height;
 		viewMatrix = Maths.createViewMatrix(camera);
 		currentRay = calculateMouseRay();
 		if (intersectionInRange(0, RAY_RANGE, currentRay)) {
-			currentTerrainPoint = binarySearch(0, 0, RAY_RANGE, currentRay);
+			currentPoint = binarySearch(0, 0, RAY_RANGE, currentRay);
 		} else {
-			currentTerrainPoint = null;
-		}
+			currentPoint = null;
+		}		
+/*		Vector3f startPoint = getPointOnRay(currentRay, 0);
+		System.out.println(startPoint);
+		float scale = (height - startPoint.y) / currentRay.y;
+		currentPoint = new Vector3f(currentRay.x * scale, height, currentRay.z * scale);*/
 	}
 
 	private Vector3f calculateMouseRay() {
@@ -92,12 +96,7 @@ public class MousePicker {
 		float half = start + ((finish - start) / 2f);
 		if (count >= RECURSION_COUNT) {
 			Vector3f endPoint = getPointOnRay(ray, half);
-			Terrain terrain = getTerrain(endPoint.getX(), endPoint.getZ());
-			if (terrain != null) {
-				return endPoint;
-			} else {
-				return null;
-			}
+			return endPoint;
 		}
 		if (intersectionInRange(start, half, ray)) {
 			return binarySearch(count + 1, start, half, ray);
@@ -109,28 +108,23 @@ public class MousePicker {
 	private boolean intersectionInRange(float start, float finish, Vector3f ray) {
 		Vector3f startPoint = getPointOnRay(ray, start);
 		Vector3f endPoint = getPointOnRay(ray, finish);
-		if (!isUnderGround(startPoint) && isUnderGround(endPoint)) {
+		if (!isUnderGroundLevel(startPoint) && isUnderGroundLevel(endPoint)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	private boolean isUnderGround(Vector3f testPoint) {
-		Terrain terrain = getTerrain(testPoint.getX(), testPoint.getZ());
-		float height = 0;
-		if (terrain != null) {
-			height = terrain.getHeightOfTerrain(testPoint.getX(), testPoint.getZ());
-		}
+	private boolean isUnderGroundLevel(Vector3f testPoint) {
 		if (testPoint.y < height) {
 			return true;
 		} else {
 			return false;
 		}
 	}
-
-	private Terrain getTerrain(float worldX, float worldZ) {
-		return terrain;
+	
+	public void setHeight(float height){
+		this.height = height;
 	}
 
 }

@@ -24,7 +24,7 @@ public class MasterRenderer {
 
 	private static final float FOV = 70;
 	private static final float NEAR_PLANE = 0.1f;
-	private static final float FAR_PLANE = 1000;
+	private static final float FAR_PLANE = 10000;
 
 	public static final float RED = 0.1f;
 	public static final float GREEN = 0.4f;
@@ -64,6 +64,17 @@ public class MasterRenderer {
 		for (Terrain terrain : terrains) {
 			processTerrain(terrain);
 		}
+		for (Entity entity : entities) {
+			processEntity(entity);
+		}
+		for(Entity entity : normalEntities){
+			processNormalMapEntity(entity);
+		}
+		render(lights, camera, clipPlane);
+	}
+	
+	public void renderScene(List<Entity> entities, List<Entity> normalEntities, List<Light> lights,
+			Camera camera, Vector4f clipPlane) {
 		for (Entity entity : entities) {
 			processEntity(entity);
 		}
