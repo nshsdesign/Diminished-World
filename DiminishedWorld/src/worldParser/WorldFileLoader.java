@@ -18,17 +18,13 @@ import entities.World;
 
 public class WorldFileLoader {
 
-	// e "model_file" "posX posY posZ" "rotX rotY rotZ" "scale" "boxposX boxposY
-	// boxposZ" " boxsizeX boxsizeY boxsizeZ" "isStatic"
-
 	private static final String RES_LOC = "res/";
 	private static final String SUBFOLDER = "worlds/";
-	private static List<Entity> entities = new ArrayList<Entity>();
 	private static List<String> objectTypes = new ArrayList<String>();
 
-	public static void loadWorldFile(String worldFileName) {
+	public static void loadWorldFile(String worldFileName, World world) {
 		FileReader isr = null;
-		File objFile = new File(RES_LOC + worldFileName + ".world");
+		File objFile = new File(RES_LOC + SUBFOLDER + worldFileName + "/" + worldFileName + ".world");
 		try {
 			isr = new FileReader(objFile);
 		} catch (FileNotFoundException e) {
@@ -36,7 +32,7 @@ public class WorldFileLoader {
 		}
 		BufferedReader reader = new BufferedReader(isr);
 		String line;
-		entities = new ArrayList<Entity>();
+		List<Entity> entities = new ArrayList<Entity>();
 		try {
 			line = reader.readLine();
 			while (line != null) {
@@ -59,6 +55,7 @@ public class WorldFileLoader {
 		} catch (IOException e) {
 			System.err.println("Error reading the file");
 		}
+		world.setEntities(entities);
 	}
 
 	public static void loadObjectTypes(String objectsFileName) {
@@ -71,7 +68,6 @@ public class WorldFileLoader {
 		}
 		BufferedReader reader = new BufferedReader(isr);
 		String line;
-		entities = new ArrayList<Entity>();
 		try {
 			line = reader.readLine();
 			while (line != null) {
@@ -106,16 +102,8 @@ public class WorldFileLoader {
 		writer.close();
 	}
 
-	public static World getWorld() {
-		return new World(entities, objectTypes);
-	}
-
 	public static List<String> getObjectTypes() {
 		return objectTypes;
-	}
-
-	public static List<Entity> getEntities() {
-		return entities;
 	}
 
 	public static String[] getObjectTypesArray() {

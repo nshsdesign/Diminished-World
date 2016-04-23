@@ -70,15 +70,15 @@ public class Camera {
 	}
 	
 	public void move(){
-		if(Keyboard.isKeyDown(Keyboard.KEY_F5)){
-			if(!prevF5Down){
-				type++;
-				if(type > FREE_ROAM) type = FIRST_PERSON;
-			}
-			prevF5Down = true;
-		}else{
-			prevF5Down = false;
-		}
+//		if(Keyboard.isKeyDown(Keyboard.KEY_F5)){
+//			if(!prevF5Down){
+//				type++;
+//				if(type > FREE_ROAM) type = FIRST_PERSON;
+//			}
+//			prevF5Down = true;
+//		}else{
+//			prevF5Down = false;
+//		}
         if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)){
         	if(!prevEscDown){
 	        	if(Mouse.isGrabbed()) Mouse.setGrabbed(false);

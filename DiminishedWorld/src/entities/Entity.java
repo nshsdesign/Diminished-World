@@ -16,7 +16,7 @@ public class Entity {
 
 	private TexturedModel model;
 	protected Vector3f position;
-	private float rotX, rotY, rotZ;
+	protected float rotX, rotY, rotZ;
 	private float scale;
 	private float minScale; //ST
 	private float maxScale; //ST
@@ -25,7 +25,7 @@ public class Entity {
 	private boolean canShrink; //ST
 	private String name; //ST may not be needed
 	private float maxY;
-	private BoundingBox boundingBox;
+	protected  BoundingBox boundingBox;
 	private boolean isStatic;
 	private Matrix4f modelMatrix = new Matrix4f();
 	
@@ -33,24 +33,6 @@ public class Entity {
 
 	public Entity(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ,
 			float scale, boolean isAbleToShrink, String name) {
-		this.model = model;
-		this.position = position;
-		this.rotX = rotX;
-		this.rotY = rotY;
-		this.rotZ = rotZ;
-		this.scale = scale;
-		this.maxScale = scale;
-		this.minScale = scale/80f; //ST
-		this.isShrinking = false; //ST 
-		this.shrinkOrGrowNow = false; //ST
-		this.canShrink = isAbleToShrink; //ST
-		this.name = name; //ST
-		maxY = position.y;
-	}
-	
-	public Entity(TexturedModel model, int index, Vector3f position, float rotX, float rotY, float rotZ,
-			float scale, boolean isAbleToShrink, String name) {
-		this.textureIndex = index;
 		this.model = model;
 		this.position = position;
 		this.rotX = rotX;
@@ -319,6 +301,14 @@ public class Entity {
 	public Matrix4f getModelMatrix(){
 		Maths.updateTransformationMatrix(modelMatrix, position.x, position.y, position.z, rotX, rotY, rotZ, scale);
 		return modelMatrix;
+	}
+
+	public void update() {
+		boundingBox.update(this);
+	}
+	
+	public void isAbleToShrink(boolean b){
+		canShrink = b;
 	}
 	
 //		public void updateModelMatrix(Vector3f up, Vector3f forward) {

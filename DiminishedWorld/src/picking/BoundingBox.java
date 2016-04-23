@@ -5,6 +5,7 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import entities.Entity;
+import entities.Player;
 import objConverter.ModelData;
 import toolbox.Maths;
 
@@ -13,14 +14,26 @@ public class BoundingBox{
 	private ModelData data;
 	private Matrix4f modelMatrix = new Matrix4f();
 	private Vector3f scale = new Vector3f();
+	private Vector3f pos = new Vector3f();
 	private boolean dirty = true;
 	private Entity e;
 	private AABB aabb;
+	private float softScale;
 
 	public BoundingBox(Entity e) {
 		this.e = e;
 		this.data = e.getModel().getRawModel().getModelData();
 		this.aabb = AABB.createAABBFromData(data);
+		this.pos = e.getPosition();
+		this.softScale = e.getScale();
+	}
+	
+	public BoundingBox(Player p, Vector3f min, Vector3f max) {
+		this.e = null;
+		this.data = null;
+		this.aabb = new AABB(min,max);
+		this.pos = p.getPosition();
+		this.softScale = 1;
 	}
 
 	public Vector3f getSizes() {
@@ -64,19 +77,43 @@ public class BoundingBox{
 	}
 	
 	public Vector3f getMin(){
-		return null;
+		return Vector3f.add(new Vector3f(aabb.getMin().x*softScale, aabb.getMin().y*softScale, aabb.getMin().z*softScale), pos, null);
 	}
 	
 	public Vector3f getMax(){
-		return null;
+		return Vector3f.add(new Vector3f(aabb.getMax().x*softScale, aabb.getMax().y*softScale, aabb.getMax().z*softScale), pos, null);
 	}
 	
 	public boolean contains(Vector3f point){
+		if(getMax().x>=point.x && getMax().y>=point.y && getMax().z>=point.z){
+			if(getMin().x<=point.x && getMin().y<=point.y && getMin().z<=point.z){
+				return true;
+			}
+		}
 		return false;
 	}
 	
 	public boolean intersects(BoundingBox b){
+		if(this.contains(b.getMin()) || this.contains(b.getMax())){
+//			System.out.println(getMin() + " || " + getMax());
+//			System.out.println(b.getMin() + " || " + b.getMax());
+			return true;
+		}
+		if(b.contains(this.getMin()) || b.contains(this.getMax())){
+//			System.out.println(getMin() + " || " + getMax());
+//			System.out.println(b.getMin() + " || " + b.getMax());
+			return true;
+		}
 		return false;
+	}
+	
+	public void update(Player p){
+		this.pos = p.getPosition();
+	}
+	
+	public void update(Entity e){
+		this.pos = e.getPosition();
+		this.softScale = e.getScale();
 	}
 
 }

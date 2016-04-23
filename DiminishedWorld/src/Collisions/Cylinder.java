@@ -40,7 +40,7 @@ public class Cylinder {
 		return false;
 	}
 	
-	public boolean checkCollisonsBasic(Basic body) {
+	public boolean checkCollisonsBasic(BasicBox body) {
 		return false;
 	}
 	
