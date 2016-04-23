@@ -3,10 +3,11 @@ package engineTester;
 import java.util.List;
 import java.util.Random;
 
-import org.lwjgl.Sys;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector3f;
 
 import entities.Enemy;
+import entities.Entity;
 import entities.Player;
 import models.RawModel;
 import models.TexturedModel;
@@ -20,20 +21,23 @@ public class ArenaLevel {
 	float spawnRate = 5; //in spawns per second
 	Random random = new Random();
 	List<Enemy> enemies;
+	List<Entity> entities;
 	
-	public static long lastFrame, timeElapsed;
+	public static long framesElapsed = 0;
 	
 	private TexturedModel mite;
+	boolean temp = true;
 	
-	public ArenaLevel(Player player, List<Enemy> enemies){
+	public ArenaLevel(Player player, List<Enemy> enemies, List<Entity> entities){
 		this.player = player;
 		this.enemies = enemies;
+		this.entities = entities;
 		player.setPosition(new Vector3f(0,70,0));
 		player.setSpawnPoint(new Vector3f(0,70,0));
 		int currentPos = 0;
 		for(int i=0; i<25; i++){
 			if(i<=5 || (i%5==4 || i%5==0) || i>=21){
-				spawnPoints[currentPos] = new Vector3f(290*(i%5 - 2)/2, 75, (float) (290*(Math.floor(i/5) - 2)/2));
+				spawnPoints[currentPos] = new Vector3f(250*(i%5 - 2)/2, 70, (float) (250*(Math.floor(i/5) - 2)/2));
 				currentPos ++;
 			}
 		}
@@ -44,20 +48,19 @@ public class ArenaLevel {
 	}
 
 	public void update(){
-		long currentTime = Sys.getTime() * 1000 / Sys.getTimerResolution();
-		int delta = (int) (currentTime-lastFrame);
-		lastFrame = Sys.getTime() * 1000 / Sys.getTimerResolution();
-		timeElapsed += delta;
-		System.out.println(timeElapsed);
-		if(timeElapsed%1 == 0){
-			System.out.println("Trying to spawn...");
-			enemies.add(new Enemy(player, mite, spawnPoints[random.nextInt(16)], 0,0,0, 3, "mite"));
-			System.out.println("spawned");
+		framesElapsed++;
+		if(framesElapsed%20 == 0){
+//		if(Keyboard.isKeyDown(Keyboard.KEY_1)){
+			enemies.add(new Enemy(player, mite, new Vector3f(spawnPoints[random.nextInt(16)]), 0,0,0, 1, "mite"));
 		}
-		
-		for(Enemy e:enemies){
-			e.update();
+//		System.out.println(enemies.size());
+		for(int i=0; i<enemies.size(); i++){
+			enemies.get(i).update();			
+			if(enemies.get(i).isShouldRemove()){
+				enemies.remove(i);
+				OpenGLView.score ++;
+//				System.out.println(enemies.size());
+			}
 		}
 	}
-	
 }

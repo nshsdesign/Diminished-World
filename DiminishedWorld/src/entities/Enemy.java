@@ -21,13 +21,17 @@ public class Enemy extends Entity{
 	private float dz = 0;
 	
 	private Player player;
+	private boolean isShrinking, shouldRemove;
+	private float maxScale, minScale;
 	
 	public Enemy(Player player, Loader loader, String name, Vector3f position, Vector3f rot, float scale) {
 		super(loader, name, position, rot, scale);
 		this.player = player;
 		this.isAbleToShrink(true);
 		
-		Y_OFFSET = boundingBox.getAABB().getMin().y;
+		Y_OFFSET = boundingBox.getAABB().getMin().y + 10;
+		maxScale = scale;
+		minScale = scale/100;
 	}
 
 	public Enemy(Player player, TexturedModel mite, Vector3f position, float rotX, float rotY, float rotZ, float scale, String name) {
@@ -35,6 +39,8 @@ public class Enemy extends Entity{
 		this.player = player;
 		
 		Y_OFFSET = boundingBox.getAABB().getMin().y;
+		maxScale = scale;
+		minScale = scale/100;
 	}
 
 	public void update() {
@@ -42,20 +48,40 @@ public class Enemy extends Entity{
 		
 		speed = MOVE_SPEED * DisplayManager.getFrameTimeSeconds();
 		checkInputs();
+		
+		if(isShrinking){
+			scale -= (maxScale)/100f;
+//			System.out.println(scale);
+			
+			if(this.scale <= minScale){
+				shouldRemove = true;
+				position.y = 0;
+			}
+		}else{
+			checkCollisionWithPlayer();
+		}
 	}
+	
 	private void checkInputs() {
 		float yaw = calcAngleToPlayer();
+		this.rotY = yaw;
 		
 		dx = 0;
 		dz = 0;
-		dz += (float) (-speed * Math.cos(Math.toRadians(yaw)));
-		dx += (float) (speed * Math.sin(Math.toRadians(yaw)));
+		dz += (player.getPosition().z - position.z) /1000;//(float) (-speed * Math.cos(Math.toRadians(yaw + 90)));
+		dx += (player.getPosition().x - position.x) /1000;//(float) (speed * Math.sin(Math.toRadians(yaw + 90)));
 		
 		dy = calcDY(dy);
 		
 		position.z += dz;
 		position.x += dx;
 		position.y += dy;
+	}
+	
+	private void checkCollisionWithPlayer(){
+		if(boundingBox.intersects(player.getFeetHitbox())){
+			System.exit(0);
+		}
 	}
 	
 	private float calcDY(float dy){
@@ -72,15 +98,14 @@ public class Enemy extends Entity{
 		}
 		
 		for(Entity e: OpenGLView.entities){
-			if(boundingBox.intersects(e.getBoundingBox())){
-				if(e.getBoundingBox().getMax().y > position.y - 10){
-					dx=(position.x - e.getPosition().x)/10;
-					dz=(position.z - e.getPosition().z)/10;
-				}else{
+			if(!(e instanceof Projectile) && boundingBox.intersects(e.getBoundingBox())){
+				if(e.getBoundingBox().getMax().y > boundingBox.getMin().y){
 					dy=0;
 					position.y = e.getBoundingBox().getMax().y + Y_OFFSET;
+				}else{
+					dx=(position.x - e.getPosition().x)/10;
+					dz=(position.z - e.getPosition().z)/10;
 				}
-				
 			}
 		}
 		
@@ -90,10 +115,17 @@ public class Enemy extends Entity{
 	private float calcAngleToPlayer(){
 		float dx = position.x - player.getPosition().x;
 		float dz = position.z - player.getPosition().z;
-		float theta = (float) Math.atan2(dz, dx);
-		if(dx < 0) theta+=90;
-		if(dz < 0) theta-=90;
+		float theta = (float) -Math.toDegrees(Math.atan2(dz, dx));
+		theta -= 90;
 		return theta;
+	}
+
+	public boolean isShouldRemove() {
+		return shouldRemove;
+	}
+	
+	public void setShrinking(boolean b){
+		this.isShrinking = b;
 	}
 
 }

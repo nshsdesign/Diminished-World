@@ -17,7 +17,7 @@ public class Entity {
 	private TexturedModel model;
 	protected Vector3f position;
 	protected float rotX, rotY, rotZ;
-	private float scale;
+	protected float scale;
 	private float minScale; //ST
 	private float maxScale; //ST
 	private boolean isShrinking; //ST
@@ -46,6 +46,8 @@ public class Entity {
 		this.canShrink = isAbleToShrink; //ST
 		this.name = name; //ST
 		maxY = position.y;
+		
+		this.boundingBox = new BoundingBox(this);
 	}
 	
 	public Entity(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ,
@@ -63,6 +65,8 @@ public class Entity {
 		this.canShrink = isAbleToShrink; //ST
 		this.name = name; //ST
 		maxY = position.y;
+		
+		this.boundingBox = new BoundingBox(this);
 	}
 	
 	public Entity(TexturedModel model, int index, Vector3f position, float rotX, float rotY, float rotZ,
@@ -81,6 +85,8 @@ public class Entity {
 		this.canShrink = isAbleToShrink; //ST
 		this.name = name; //ST
 		maxY = position.y;
+		
+		this.boundingBox = new BoundingBox(this);
 	}
 	
 	public float getX(){
@@ -309,6 +315,17 @@ public class Entity {
 	
 	public void isAbleToShrink(boolean b){
 		canShrink = b;
+	}
+	
+	public float[] accInfoForRayGun(){
+		float[] infoForRay = new float[6];
+		float yaw = -90 - this.getRotY();
+		float pitch = this.getRotZ();
+		infoForRay[0] = (float) (Math.sin(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90))); //dx
+	    infoForRay[1] = (float) (Math.sin(Math.toRadians(pitch))); // correct dy
+		infoForRay[2] = (float) (Math.cos(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90))); //dz
+		
+		return infoForRay;
 	}
 	
 //		public void updateModelMatrix(Vector3f up, Vector3f forward) {

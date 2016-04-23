@@ -12,10 +12,11 @@ public class Player extends Entity {
 	private static final float MOVE_SPEED = 80;
 	private static final float SPRINT_MULT = 1.5f;
 	private static final float STRAFE_MULT = .8f;
-	private static final float GRAVITY = -9.8f/200;
+	private static final float GRAVITY = -9.8f/100;
 	private static final float JUMP_POWER = 1;
 	private static final float TERMINAL_VELOCTIY = -9.8f;
 	private static final float Y_OFFSET = 20;
+	private static final float PROJECTILE_SPEED = 5f;
 
 	private float speed = MOVE_SPEED;
 
@@ -134,9 +135,9 @@ public class Player extends Entity {
 		float[] infoForRay = new float[6];
 		float yaw = -90 - this.getRotY();
 		float pitch = this.getRotZ();
-		infoForRay[0] = (float) (-speed * Math.sin(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90))); //dx
-	    infoForRay[1] = (float) (-speed * Math.sin(Math.toRadians(pitch))); // correct dy
-		infoForRay[2] = (float) (speed * Math.cos(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90))); //dz
+		infoForRay[0] = (float) (-PROJECTILE_SPEED * Math.sin(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90))); //dx
+	    infoForRay[1] = (float) (-PROJECTILE_SPEED * Math.sin(Math.toRadians(pitch))); // correct dy
+		infoForRay[2] = (float) (PROJECTILE_SPEED * Math.cos(Math.toRadians(yaw)) * Math.sin(Math.toRadians(pitch - 90))); //dz
 		
 		return infoForRay;
 	}
@@ -167,6 +168,10 @@ public class Player extends Entity {
 
 	public void setSpawnPoint(Vector3f spawnPoint) {
 		this.spawnPoint = spawnPoint;
+	}
+
+	public BoundingBox getFeetHitbox() {
+		return feetHitbox;
 	}
 
 }
