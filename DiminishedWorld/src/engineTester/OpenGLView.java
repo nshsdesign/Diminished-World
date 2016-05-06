@@ -1,10 +1,11 @@
 package engineTester;
 
 import java.awt.Color;
+
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -29,6 +30,8 @@ import entities.Light;
 import entities.Player;
 import entities.Projectile;
 import entities.World;
+import fontMeshCreator.FontType;
+import fontMeshCreator.GUIText;
 import guis.GuiRenderer;
 import guis.GuiTexture;
 import menu.NewWindowListener;
@@ -47,6 +50,8 @@ import water.WaterRenderer;
 import water.WaterShader;
 import water.WaterTile;
 import worldParser.WorldFileLoader;
+
+import org.lwjgl.util.vector.Vector2f;
 
 public class OpenGLView {
 	
@@ -428,6 +433,12 @@ public class OpenGLView {
 		boolean inArena = false;
 		boolean isMousePrevDown = false;
 		
+		GuiTexture sanityTexture = new GuiTexture(loader.loadTexture("sanity","sanityBar"+player.getSanity()), new Vector2f(-.65f,-.54f), new Vector2f(0.45f,0.05f));
+		guiTextures.add(sanityTexture);
+		
+		FontType font = new FontType(loader.loadTexture("fonts", "crazyFont"), new File("res/fonts/crazyFont.fnt"));
+		//GUIText textSan = new GUIText("Sanity", 1.3f, font , new Vector2f(-0.22f,0.7f), 0.5f, true); //ST
+	    //textSan.setColour(1, 1, 1);
 		while (!Display.isCloseRequested()) {
 			
 			//Toggles gameloop from running and not running by pressing "P"
@@ -449,6 +460,8 @@ public class OpenGLView {
 						arenaLevel = new ArenaLevel(player, enemies, entities);
 						entities = arena.getEntities();
 						entities.add(rayGun);
+						guiTextures.add(new GuiTexture(loader.loadTexture("guis", "aim3lineYellowMidV2"), new Vector2f(0f,0f), new Vector2f(0.05f,0.05f))); //ST
+						
 					}
 				}else{
 					arenaLevel.update();
@@ -465,6 +478,11 @@ public class OpenGLView {
 					
 					if(score != prevScore) System.out.println("Score:" + score);
 					prevScore = score;
+					
+					guiTextures.remove(sanityTexture);
+					sanityTexture = new GuiTexture(loader.loadTexture("sanity","sanityBar"+player.getSanity()), new Vector2f(-.65f,-.54f), new Vector2f(0.45f,0.05f));
+					guiTextures.add(sanityTexture);
+					
 					
 				}
 				ArrayList<Projectile> toRemove = new ArrayList<Projectile>();

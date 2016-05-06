@@ -28,7 +28,17 @@ public class TextMaster {
 	public static void loadText(GUIText text){
 		FontType font = text.getFont();
 		TextMeshData data = font.loadText(text);
-		int vao = loader.loadToVAO(data.getVertexPositions(), data.getTextureCoords());
+		float[] test = data.getVertexPositions();
+		for(int x=0; x<data.getVertexPositions().length; x++){
+			System.out.println("VertexPositions(" + x + ") = " + test[x]);
+		}
+		test = data.getTextureCoords();
+		for(int x=0; x<data.getTextureCoords().length; x++){
+			System.out.println("TextureCoords(" + x + ") = " + test[x]);
+		}
+		test[5] = 0.38476562f;
+		float[] test2 = data.getVertexPositions();
+		int vao = loader.loadToVAO(test2, test);
 		text.setMeshInfo(vao, data.getVertexCount());
 		List<GUIText> textBatch = texts.get(font);
 		if(textBatch == null){

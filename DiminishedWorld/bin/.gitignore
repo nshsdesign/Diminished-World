@@ -1,9 +1,3 @@
 /engineTester/
-/worlds/
-/worldParser/
-/objConverter/
-/entities/
-/keep/
-/Collisions/
-/picking/
-/renderEngine/
+/fontRendering/
+/fontMeshCreator/

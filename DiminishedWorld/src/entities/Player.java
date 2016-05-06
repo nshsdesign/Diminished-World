@@ -44,7 +44,7 @@ public class Player extends Entity {
 		this.rotY = rot.y;
 		this.rotZ = rot.z;
 		camera.setPlayer(this);
-		sanity = 0;
+		sanity = 100;
 		sprint = 0;
 		amountOfDust = 0;
 		hasRayGun = true; //ST FOR TESTS SHOULD START AS FALSE

@@ -61,7 +61,8 @@ public class GUIText {
 		this.position = position;
 		this.lineMaxSize = maxLineLength;
 		this.centerText = centered;
-		TextMaster.loadText(this);;
+		//TextMaster.loadText(this);;
+		TextMaster.loadText(this);
 	}
 
 	/**

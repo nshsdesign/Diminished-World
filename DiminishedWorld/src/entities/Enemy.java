@@ -1,5 +1,7 @@
 package entities;
 
+import java.util.Random;
+
 import org.lwjgl.util.vector.Vector3f;
 
 import engineTester.OpenGLView;
@@ -65,14 +67,24 @@ public class Enemy extends Entity{
 	private void checkInputs() {
 		float yaw = calcAngleToPlayer();
 		this.rotY = yaw;
-		
+		Random rand = new Random();
 		dx = 0;
 		dz = 0;
-		dz += (player.getPosition().z - position.z) /1000;//(float) (-speed * Math.cos(Math.toRadians(yaw + 90)));
-		dx += (player.getPosition().x - position.x) /1000;//(float) (speed * Math.sin(Math.toRadians(yaw + 90)));
-		
+		dz += (player.getPosition().z - position.z) /40;//(float) (-speed * Math.cos(Math.toRadians(yaw + 90)));
+		dx += (player.getPosition().x - position.x) /40;//(float) (speed * Math.sin(Math.toRadians(yaw + 90)));
+		/**
+		if(this.position.z < player.position.z){
+			dz = ((float)rand.nextInt(10)+1f)/20f;
+		}else{
+			dz = -((float)rand.nextInt(10)+1f)/20f;
+		}
+		if(this.position.x < player.position.x){
+			dx = +((float)rand.nextInt(10)+1f)/20f;
+		}else{
+			dx = -((float)rand.nextInt(10)+1f)/20f;
+		}
+		*/
 		dy = calcDY(dy);
-		
 		position.z += dz;
 		position.x += dx;
 		position.y += dy;
@@ -80,6 +92,9 @@ public class Enemy extends Entity{
 	
 	private void checkCollisionWithPlayer(){
 		if(boundingBox.intersects(player.getFeetHitbox())){
+			player.setSanity(player.getSanity()-1);
+		}
+		if(player.getSanity()<1){
 			System.exit(0);
 		}
 	}
@@ -99,6 +114,28 @@ public class Enemy extends Entity{
 		
 		for(Entity e: OpenGLView.entities){
 			if(!(e instanceof Projectile) && boundingBox.intersects(e.getBoundingBox())){
+				if(e.getBoundingBox().getMax().y > boundingBox.getMin().y){
+					dy=0;
+					position.y = e.getBoundingBox().getMax().y + Y_OFFSET;
+				}else{
+					dx=(position.x - e.getPosition().x)/10;
+					dz=(position.z - e.getPosition().z)/10;
+				}
+			}
+			/**
+			if(!(e instanceof Enemy) && boundingBox.intersects(e.getBoundingBox())){
+				if(e.getBoundingBox().getMax().y > boundingBox.getMin().y){
+					dy=0;
+					position.y = e.getBoundingBox().getMax().y + Y_OFFSET;
+				}else{
+					dx=(position.x - e.getPosition().x)/10;
+					dz=(position.z - e.getPosition().z)/10;
+				}
+			}
+			*/
+		}
+		for(Enemy e: OpenGLView.enemies){
+			if((e instanceof Enemy) && boundingBox.intersects(e.getBoundingBox()) && !boundingBox.equals(e.getBoundingBox())){
 				if(e.getBoundingBox().getMax().y > boundingBox.getMin().y){
 					dy=0;
 					position.y = e.getBoundingBox().getMax().y + Y_OFFSET;
